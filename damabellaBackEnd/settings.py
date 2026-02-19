@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'api.Roles',
     'api.Authentication',
     'api.Users',
+    'api.Providers',
 ]
 
 MIDDLEWARE = [

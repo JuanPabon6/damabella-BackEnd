@@ -8,6 +8,7 @@ from django.core.exceptions import MultipleObjectsReturned
 from django.db.utils import IntegrityError
 from rest_framework.exceptions import ValidationError, APIException
 from api.Exceptions.exceptions import ObjectNotExists,MultiResults, IntegrityException, InvalidData
+from .Services.ExportUsers import Export_users_list
 
 class UsersViewSets(viewsets.ModelViewSet):
     queryset = Users.objects.all()
@@ -15,43 +16,43 @@ class UsersViewSets(viewsets.ModelViewSet):
     permission_classes = []
     authentication_classes = []
     filter_backends = [filters.SearchFilter]
-    search_fields = ['doc_identity','name','email','phone','address','id_rol__Name']
+    search_fields = ['doc_identity','name','email','phone','address','id_rol__name']
 
     def get_serializer_class(self):
         if self.action == 'partial_update':
             return UsersPatchActiveSerializer
         return UsersSerializer
 
-    action(detail=False, methods=['GET'])
+    @action(detail=False, methods=['GET'])
     def get_users(self, request, pk=None):
         try:
             users = self.get_queryset()          
             serializer = self.get_serializer(users, many=True)
-            return Response({'results':serializer.data}, status=status.HTTP_200_OK)
+            return Response({'results':serializer.data, 'success':True}, status=status.HTTP_200_OK)
         except Users.DoesNotExist:
             raise ObjectNotExists()
         except Exception as ex:
             raise APIException(detail=str(ex),code="error de servidor")
         
-    action(detail=True, methods=['GET'])
-    def get_users_by_id(self, request, pk=None):
+    @action(detail=True, methods=['GET'])
+    def get_users_by_doc(self, request, pk=None):
         try:
-            user = Users.objects.get(Doc_identity=pk)
+            user = Users.objects.get(doc_identity=pk)
             serializer = self.get_serializer(user, many=False)
-            return Response({'results':serializer.data}, status=status.HTTP_200_OK)
+            return Response({'results':serializer.data, 'success':True}, status=status.HTTP_200_OK)
         except Users.DoesNotExist:
             raise ObjectNotExists()
         except Exception as ex:
             raise APIException(detail=str(ex),code="error de servidor")
         
-    action(detail=False, methods=['POST'])
+    @action(detail=False, methods=['POST'])
     def create_users(self, request, pk=None):
         try:
             data = request.data
             serializer = self.get_serializer(data=data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response({'results':'creado exitosamente'}, status=status.HTTP_201_CREATED)
+            return Response({'results':'creado exitosamente','object':serializer.data, 'success':True}, status=status.HTTP_201_CREATED)
         except IntegrityError:
             raise IntegrityException()
         except MultipleObjectsReturned:
@@ -59,12 +60,12 @@ class UsersViewSets(viewsets.ModelViewSet):
         except Exception as ex:
             raise APIException(detail=str(ex), code="error de servidor")
         
-    action(detail=True, methods=['DELETE'])
+    @action(detail=True, methods=['DELETE'])
     def delete_users(self, request, pk=None):
         try:
-            user = Users.objects.get(Doc_identity=pk)        
+            user = Users.objects.get(doc_identity=pk)        
             user.delete()
-            return Response({'results':'eliminado exitosamente'}, status=status.HTTP_204_NO_CONTENT)
+            return Response({'results':'eliminado exitosamente', 'success':True}, status=status.HTTP_204_NO_CONTENT)
         except Users.DoesNotExist:
             raise ObjectNotExists()
         except IntegrityError:
@@ -74,15 +75,15 @@ class UsersViewSets(viewsets.ModelViewSet):
         except Exception as ex:
             raise APIException(detail=str(ex), code="error de servidor")
         
-    action(detail=True, methods=['PUT'])
+    @action(detail=True, methods=['PUT'])
     def update_users(self, request, pk=None):
         try:
-            user = Users.objects.get(Doc_identity=pk)     
+            user = Users.objects.get(doc_identity=pk)     
             data = request.data
             serializer = self.get_serializer(user, data=data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response({'results':'actualizado exitosamente'}, status=status.HTTP_200_OK)
+            return Response({'results':'actualizado exitosamente', 'User':serializer.data, 'success':True}, status=status.HTTP_200_OK)
         except Users.DoesNotExist:
             raise ObjectNotExists()
         except ValidationError:
@@ -90,30 +91,30 @@ class UsersViewSets(viewsets.ModelViewSet):
         except MultipleObjectsReturned:
             raise MultiResults()
         except Exception:
-            raise APIException(detail="Error interno del servidor",code=500)
+            raise APIException(detail="Error interno del servidor",code="error de servidor")
         
         
-    action(detail=False, methods=['GET'])
+    @action(detail=False, methods=['GET'])
     def search_users(self, request, pk=None):
         try:
             queryset = self.get_queryset()
             instance = self.filter_queryset(queryset=queryset)
             if not instance.exists():
-                return Response({'results':[], 'success':False}, status=status.HTTP_200_OK)
+                return Response({'message':'sin resultados', 'results':[], 'success':False}, status=status.HTTP_200_OK)
             
             serializer = self.get_serializer(instance, many=True)
-            return Response({'results':serializer.data, 'success':True}, status=status.HTTP_200_OK)
+            return Response({'message':'resultados obtenidos', 'results':serializer.data, 'success':True}, status=status.HTTP_200_OK)
         except Exception as ex:
             raise APIException(detail=str(ex), code="error de servidor")
         
-    action(detail=True, methods=['PATCH'])
+    @action(detail=True, methods=['PATCH'])
     def change_state(self, request, pk=None):
         try:
-            user = Users.objects.get(Doc_identity=pk)
+            user = Users.objects.get(doc_identity=pk)
             serializer = self.get_serializer(user, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response({'results':'estado cambiado exitosamente', 'success':True}, status=status.HTTP_200_OK)
+            return Response({'results':'estado cambiado exitosamente','User':serializer.data, 'success':True}, status=status.HTTP_200_OK)
         except IntegrityError:
             raise IntegrityException()
         except ValidationError:
@@ -123,6 +124,10 @@ class UsersViewSets(viewsets.ModelViewSet):
         except Exception as ex:
             raise APIException(detail=str(ex), code="error de servidor")
         
+    @action(detail=False, methods=['GET'])   
+    def export_users(self, request, pk=None):
+        queryset = self.filter_queryset(self.get_queryset())
+        return Export_users_list(queryset=queryset)
 
 
 # Create your views here.
