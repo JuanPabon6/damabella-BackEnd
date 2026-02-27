@@ -6,6 +6,7 @@ class ProvidersSerializers(serializers.ModelSerializer):
         model = Providers
         fields = '__all__'
         extra_kwargs = {
+            'id_provider':{'read_only':True},
             'created_at':{'read_only':True},
             'updated_at':{'read_only':True},
         }

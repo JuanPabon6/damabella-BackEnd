@@ -39,11 +39,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'drf_yasg',
     'api',
     'api.Roles',
     'api.Authentication',
     'api.Users',
     'api.Providers',
+    'api.Categories',
+    'api.Products',
+    'api.Orders',
+    'api.Inventory',
 ]
 
 MIDDLEWARE = [
@@ -75,25 +80,25 @@ TEMPLATES = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES':(
-        'rest_framework_simplejwt.authentication.JWTAuthentication'
-    ),
-    'DEFAULT_PERMISSION_CLASSES':(
-        'rest_framework.permissions.IsAuthenticated'
-    )
+    # 'DEFAULT_AUTHENTICATION_CLASSES':(
+    #     'rest_framework_simplejwt.authentication.JWTAuthentication'
+    # ),
+    # 'DEFAULT_PERMISSION_CLASSES':(
+    #     'rest_framework.permissions.IsAuthenticated'
+    # ),
 }
 
-SIMPLE_JWT = {
-    'ACCES_TOKEN_LIFETIME': timedelta(hours=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ROTATE_REFRESH_TOKEN': False,
-    'BLACKLIST_AFTER_ROTATION': True,
+# SIMPLE_JWT = {
+#     'ACCES_TOKEN_LIFETIME': timedelta(hours=1),
+#     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+#     'ROTATE_REFRESH_TOKEN': False,
+#     'BLACKLIST_AFTER_ROTATION': True,
 
-    'ALGORITHM': 'HS256',
-    'SINGING': config('SECRET_KEY'),
-    'AUTH_HEADER_TYPES': ('bearer',),
-    'AUTH_TOKEN_CLASSSES': ('rest_framework_simplejwt.tokens.AccesToken',),
-}
+#     'ALGORITHM': 'HS256',
+#     'SINGING': config('SECRET_KEY'),
+#     'AUTH_HEADER_TYPES': ('bearer',),
+#     'AUTH_TOKEN_CLASSSES': ('rest_framework_simplejwt.tokens.AccesToken',),
+# }
 
 CORS_ORIGIN_WHITELIST = [
     ''
