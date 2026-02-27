@@ -9,16 +9,16 @@ from api.Exceptions.exceptions import ObjectNotExists,MultiResults, IntegrityExc
 from .models import Providers
 from .serializers import ProvidersSerializers
 
-class ProvidersViewSets(viewsets.ModelViewSet):
+class ProvidersViewSets(viewsets.GenericViewSet):
     queryset = Providers.objects.all()
     serializer_class = ProvidersSerializers
-    authentication_classes = []
-    permission_classes = []
+    # authentication_classes = []
+    # permission_classes = []
     filter_backends = [filters.SearchFilter]
     fields_search = ['nit_document','kompany_name','contact_name','phone','address']
 
     @action(detail=False, methods=['GET'])
-    def get_providers(self, request, pk=None):
+    def get_providers(self, request):
         try:
             providers = self.get_queryset()
             serializer = self.get_serializer(providers,many=True)
@@ -31,7 +31,7 @@ class ProvidersViewSets(viewsets.ModelViewSet):
     @action(detail=True, methods=['GET'])    
     def get_providers_by_nit(self, request, pk=None):
         try:
-            provider = Providers.objects.get(nit_document=pk)
+            provider = self.get_object()
             serializer = self.get_serializer(provider,many=False)
             return Response({'results':serializer.data, 'success':True}, status=status.HTTP_200_OK)
         except Providers.DoesNotExist:
@@ -42,7 +42,7 @@ class ProvidersViewSets(viewsets.ModelViewSet):
             raise APIException(detail=str(ex),code="error de servidor")
         
     @action(detail=False,methods=['POST'])
-    def create_providers(self, request, pk=None):
+    def create_providers(self, request):
         try:
             data= request.data
             serializer = self.get_serializer(data=data)
@@ -59,7 +59,7 @@ class ProvidersViewSets(viewsets.ModelViewSet):
     @action(detail=True,methods=['DELETE'])
     def delete_providers(self, request, pk=None):
         try:
-            provider = Providers.objects.get(nit_document=pk)
+            provider = self.get_object()
             provider.delete()
             return Response({'results':'eliminado exitosamente','succes':True}, status=status.HTTP_200_OK)
         except Providers.DoesNotExist:
@@ -91,7 +91,7 @@ class ProvidersViewSets(viewsets.ModelViewSet):
             raise APIException(detail=str(ex),code='error de servidor')
         
     @action(detail=False,methods=['GET'])
-    def search_providers(self, request, pk=None):
+    def search_providers(self, request):
         try:
             queryset = self.get_queryset()
             instance = self.filter_queryset(queryset=queryset)
@@ -104,6 +104,8 @@ class ProvidersViewSets(viewsets.ModelViewSet):
             raise ObjectNotExists()
         except Exception as ex:
             raise APIException(detail=str(ex),code='error de servidor')
+        
+
         
 
         
