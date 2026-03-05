@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
     'drf_yasg',
     'api',
     'api.Roles',
@@ -49,6 +50,7 @@ INSTALLED_APPS = [
     'api.Products',
     'api.Orders',
     'api.Inventory',
+    'api.Clients',
 ]
 
 MIDDLEWARE = [
@@ -79,26 +81,48 @@ TEMPLATES = [
     },
 ]
 
+AUTH_USER_MODEL ='Users.Users'
+
 REST_FRAMEWORK = {
-    # 'DEFAULT_AUTHENTICATION_CLASSES':(
-    #     'rest_framework_simplejwt.authentication.JWTAuthentication'
-    # ),
-    # 'DEFAULT_PERMISSION_CLASSES':(
-    #     'rest_framework.permissions.IsAuthenticated'
-    # ),
+    'DEFAULT_AUTHENTICATION_CLASSES':[
+        'rest_framework_simplejwt.authentication.JWTAuthentication'
+    ],
+    'DEFAULT_PERMISSION_CLASSES':[
+        'rest_framework.permissions.IsAuthenticated',
+        'api.Globalpermissions.HasModulePermission'
+    ],
 }
 
-# SIMPLE_JWT = {
-#     'ACCES_TOKEN_LIFETIME': timedelta(hours=1),
-#     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-#     'ROTATE_REFRESH_TOKEN': False,
-#     'BLACKLIST_AFTER_ROTATION': True,
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in':   'header',
+        }
+    },
+    'USE_SESSION_AUTH': False,  # ← deshabilita el auth básico de Django
+    'JSON_EDITOR': True,
+    'DEFAULT_AUTO_SCHEMA_CLASS': 'drf_yasg.inspectors.SwaggerAutoSchema',
+}
 
-#     'ALGORITHM': 'HS256',
-#     'SINGING': config('SECRET_KEY'),
-#     'AUTH_HEADER_TYPES': ('bearer',),
-#     'AUTH_TOKEN_CLASSSES': ('rest_framework_simplejwt.tokens.AccesToken',),
-# }
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+EMAIL_HOST_USER = 'damabella@gmail.com'
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+
+    'ALGORITHM': 'HS256',
+    'SINGING_KEY': config('SECRET_KEY'),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id_user',
+    'USER_ID_CLAIM': 'user_id',
+    'AUTH_TOKEN_CLASSSES': ('rest_framework_simplejwt.tokens.AccesToken',),
+}
 
 CORS_ORIGIN_WHITELIST = [
     ''

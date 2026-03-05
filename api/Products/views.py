@@ -15,6 +15,7 @@ class ProductsViewSets(viewsets.GenericViewSet):
     serializer_class = ProductsSerializer
     # authentication_classes = []
     # permission_classes = []
+    required_module = 'Products'
     filter_backends = [filters.SearchFilter]
     search_fields = ['id_product','name','category','price','is_active']
 

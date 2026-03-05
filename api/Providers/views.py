@@ -7,15 +7,21 @@ from django.db.utils import IntegrityError
 from django.core.exceptions import MultipleObjectsReturned
 from api.Exceptions.exceptions import ObjectNotExists,MultiResults, IntegrityException, InvalidData
 from .models import Providers
-from .serializers import ProvidersSerializers
+from .serializers import ProvidersSerializers, PatchStateSerializer
 
 class ProvidersViewSets(viewsets.GenericViewSet):
     queryset = Providers.objects.all()
     serializer_class = ProvidersSerializers
     # authentication_classes = []
     # permission_classes = []
+    required_module = 'Providers'
     filter_backends = [filters.SearchFilter]
     fields_search = ['nit_document','kompany_name','contact_name','phone','address']
+
+    def get_serializer_class(self):
+        if self.action == 'patch_state':
+            return PatchStateSerializer
+        return ProvidersSerializers
 
     @action(detail=False, methods=['GET'])
     def get_providers(self, request):
@@ -29,17 +35,13 @@ class ProvidersViewSets(viewsets.GenericViewSet):
             raise APIException(detail=str(ex), code="error de servidor")
         
     @action(detail=True, methods=['GET'])    
-    def get_providers_by_nit(self, request, pk=None):
-        try:
-            provider = self.get_object()
-            serializer = self.get_serializer(provider,many=False)
-            return Response({'results':serializer.data, 'success':True}, status=status.HTTP_200_OK)
-        except Providers.DoesNotExist:
-            raise ObjectNotExists()
-        except MultipleObjectsReturned:
-            raise MultiResults()
-        except Exception as ex:
-            raise APIException(detail=str(ex),code="error de servidor")
+    def get_providers_by_id(self, request, pk=None):
+            try:
+                provider = self.get_object()
+                serializer = self.get_serializer(provider,many=False)
+                return Response({'results':serializer.data, 'success':True}, status=status.HTTP_200_OK)
+            except MultipleObjectsReturned:
+                return Response({'message':'multiples objetos retornados', 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     @action(detail=False,methods=['POST'])
     def create_providers(self, request):
@@ -49,12 +51,8 @@ class ProvidersViewSets(viewsets.GenericViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response({'results':'creado exitosamente', 'object':serializer.data, 'success':True}, status=status.HTTP_200_OK)
-        except IntegrityError:
-            raise IntegrityException()
-        except ValidationError:
-            raise InvalidData()
-        except Exception as ex:
-            raise APIException(detail=str(ex),code='error de servidor')
+        except MultipleObjectsReturned:
+            return Response({'message':'multiples objetos retornados', 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     @action(detail=True,methods=['DELETE'])
     def delete_providers(self, request, pk=None):
@@ -62,14 +60,8 @@ class ProvidersViewSets(viewsets.GenericViewSet):
             provider = self.get_object()
             provider.delete()
             return Response({'results':'eliminado exitosamente','succes':True}, status=status.HTTP_200_OK)
-        except Providers.DoesNotExist:
-            raise ObjectNotExists()
-        except IntegrityError:
-            raise IntegrityException()
         except MultipleObjectsReturned:
-            raise MultiResults()
-        except Exception as ex:
-            raise APIException(detail=str(ex),code='error de servidor')
+            return Response({'message':'multiples objetos retornados', 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     @action(detail=True,methods=['PUT'])
     def update_providers(self, request, pk=None):
@@ -80,19 +72,10 @@ class ProvidersViewSets(viewsets.GenericViewSet):
             serializer.save()
             return Response({'results':'actualizado exitosamente', 'provider':serializer.data, 'success':True})
         except MultipleObjectsReturned:
-            raise MultiResults()
-        except Providers.DoesNotExist:
-            raise ObjectNotExists()
-        except ValidationError:
-            raise InvalidData()
-        except IntegrityError:
-            raise IntegrityException()
-        except Exception as ex:
-            raise APIException(detail=str(ex),code='error de servidor')
+            return Response({'message':'multiples objetos retornados', 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     @action(detail=False,methods=['GET'])
     def search_providers(self, request):
-        try:
             queryset = self.get_queryset()
             instance = self.filter_queryset(queryset=queryset)
             if not instance.exists():
@@ -100,11 +83,17 @@ class ProvidersViewSets(viewsets.GenericViewSet):
             
             serializer = self.get_serializer(instance, many=True)
             return Response({'messsage':'resultados obtenidos', 'results':serializer.data, 'success':True}, status=status.HTTP_200_OK)
-        except Providers.DoesNotExist:
-            raise ObjectNotExists()
-        except Exception as ex:
-            raise APIException(detail=str(ex),code='error de servidor')
-        
+
+    @action(detail=True,methods=['PATCH'])
+    def patch_state(self, request, pk=None):
+        try:
+            provider = self.get_object()
+            serializer = self.get_serializer(provider, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response({'message':'estado cambiado exitosamente', 'object':serializer.data, 'success':True}, status=status.HTTP_200_OK)
+        except MultipleObjectsReturned:
+            return Response({'message':'multiples objetos retornados', 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         
 
