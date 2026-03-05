@@ -12,13 +12,14 @@ from api.Exceptions.exceptions import ObjectNotExists,MultiResults, IntegrityExc
 class CategoriesViewSets(viewsets.GenericViewSet):
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializers
-    permission_classes = []
-    authentication_classes = []
+    # permission_classes = []
+    # authentication_classes = []
+    required_module = 'Categories'
     filter_backends = [filters.SearchFilter]
     fields_search = ['id_category','name','description','is_active']
 
     def get_serializer_class(self):
-        if self.action == 'partial_update':
+        if self.action == 'change_state':
             return PatchStateCategoriesSerializers
         return CategoriesSerializers
 
@@ -103,7 +104,7 @@ class CategoriesViewSets(viewsets.GenericViewSet):
     def change_state(self, request, pk=None):
         try:
             category = self.get_object()
-            serializer = self.get_serializer_class(category, data=request.data, partial=True)
+            serializer = self.get_serializer(category, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response({'message':'estado actualizado exitosamente', 'categoria':serializer.data, 'success':True}, status=status.HTTP_200_OK)

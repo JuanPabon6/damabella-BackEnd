@@ -2,8 +2,8 @@ from django.shortcuts import render
 from rest_framework import viewsets, status, filters
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from .models import Roles, Permissions
-from .serializers import RolesSerializers, PermissionsSerializer, PatchStateRolesSerializer
+from .models import Roles, Permissions, RolPermission
+from .serializers import RolesSerializers, PermissionsSerializer, PatchStateRolesSerializer, RolPermissionSerializer
 from rest_framework.exceptions import APIException, ValidationError
 from api.Exceptions.exceptions import ObjectNotExists,MultiResults, IntegrityException, InvalidData
 from django.db.utils import IntegrityError
@@ -12,13 +12,14 @@ from django.core.exceptions import MultipleObjectsReturned
 class RolesViewSets(viewsets.GenericViewSet):
     queryset = Roles.objects.all()
     serializer_class = RolesSerializers
+    required_module = 'Roles'
     # permission_classes = []
     # authentication_classes = []
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', 'description']
 
     def get_serializer_class(self):
-        if self.action == 'partial_update':
+        if self.action == 'change_state':
             return PatchStateRolesSerializer
         return RolesSerializers
 
@@ -54,7 +55,8 @@ class RolesViewSets(viewsets.GenericViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response({'results':'creado exitosamente', 'object':serializer.data, 'success':True}, status=status.HTTP_201_CREATED)
-        except ValidationError:
+        except ValidationError as e:
+            print('error', e.detail)
             raise InvalidData()
         except MultipleObjectsReturned:
             raise MultiResults()
@@ -107,10 +109,8 @@ class RolesViewSets(viewsets.GenericViewSet):
     @action(detail=True,methods=['PATCH'])
     def change_state(self, request, pk=None):
         try:
-            permission = self.get_object()
-            if not permission.exists():
-                return Response({'message':'permiso no encontrado', 'results':[], 'success':False}, status=status.HTTP_404_NOT_FOUND)
-            serializer = self.get_serializer_class(permission, data=request.data, partial=True)
+            rol = self.get_object()
+            serializer = self.get_serializer(rol, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response({'message':'estado cambiado exitosamente','permission':serializer.data, 'success':True}, status=status.HTTP_200_OK)
@@ -126,8 +126,8 @@ class PermissionsViewSets(viewsets.GenericViewSet):
     # authentication_classes = []
     # permission_classes = []
 
-    @action(detail=True,methods=['GET'])
-    def get_permissions(self, request):
+    @action(detail=False,methods=['GET'])
+    def get_all_permissions(self, request):
         try:
             permissions = self.get_queryset()
             serializer = self.get_serializer(permissions,many=True)
@@ -185,5 +185,38 @@ class PermissionsViewSets(viewsets.GenericViewSet):
         except Exception as ex:
             return Response({'error':str(ex), 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-
+class RolPermissionViewSets(viewsets.GenericViewSet):
+    queryset = RolPermission.objects.all()
+    serializer_class = RolPermissionSerializer
+    # authentication_classes = []
+    # permission_classes = []
+        
+    @action(detail=False,methods=['POST'])
+    def assing_permission(self, request):
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response({'message':'permiso asignado correctamente', 'success':True}, status=status.HTTP_200_OK)
+    
+    @action(detail=False,methods=['DELETE'])
+    def delete_rol_permission(self, request):
+        rol_id = request.data.get('rol')
+        permission_id = request.data.get('permission')
+        if not rol_id or not permission_id:
+            return Response({'message':'debes enviar rol y permiso', 'success':False}, status=status.HTTP_400_BAD_REQUEST)
+        
+        delete_camp = RolPermission.objects.filter(rol=rol_id, permission=permission_id)
+        delete_camp.delete()
+        return Response({'message':'eliminado exitosamente', 'success':True}, status=status.HTTP_200_OK)
+    
+    @action(detail=True,methods=['GET'])
+    def get_permissions_by_rol(self, request, pk=None):
+        rol_permission = RolPermission.objects.filter(rol=pk).select_related('permission')
+        if not rol_permission.exists():
+            return Response(
+                {'message': 'Este rol no tiene permisos asignados', 'results': [], 'success': True},
+                status=status.HTTP_200_OK
+            )
+        serializer = self.get_serializer(rol_permission, many=True)
+        return Response({'results':serializer.data, 'success':True}, status=status.HTTP_200_OK)
 # Create your views here.

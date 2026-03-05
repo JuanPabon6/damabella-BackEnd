@@ -10,3 +10,8 @@ class ProvidersSerializers(serializers.ModelSerializer):
             'created_at':{'read_only':True},
             'updated_at':{'read_only':True},
         }
+
+class PatchStateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Providers
+        fields = ['is_active']

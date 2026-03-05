@@ -1,20 +1,118 @@
 from django.shortcuts import render
-from rest_framework import filters,status,viewsets
+from rest_framework import filters,status,viewsets, views, permissions
 from rest_framework.response import Response
 from .models import Users, Typesdoc
-from .serializers import UsersSerializer, UsersPatchActiveSerializer, TypesDocsSerializers
+from .serializers import UsersSerializer, UsersPatchActiveSerializer, TypesDocsSerializers,LoginSerializer, ChangePasswordSerializer, RequestOTPSerializer,ValidateOTPSerializer, ResetPasswordSerializer
 from rest_framework.decorators import action
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.utils import IntegrityError
 from rest_framework.exceptions import ValidationError, APIException
 from api.Exceptions.exceptions import ObjectNotExists,MultiResults, IntegrityException, InvalidData
 from .Services.ExportUsers import Export_users_list
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
+
+class ChangePasswordView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        serializer = ChangePasswordSerializer(
+            data=request.data,
+            context={'request': request}
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {'message': 'Contraseña cambiada exitosamente', 'success': True},
+                status=status.HTTP_200_OK
+            )
+        return Response(
+            {'errors': serializer.errors, 'success': False},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class RequestOTPView(views.APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = RequestOTPSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {'message': 'Código enviado al correo exitosamente', 'success': True},
+                status=status.HTTP_200_OK
+            )
+        return Response(
+            {'errors': serializer.errors, 'success': False},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class ValidateOTPView(views.APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = ValidateOTPSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {'message': 'Código validado correctamente', 'success': True},
+                status=status.HTTP_200_OK
+            )
+        return Response(
+            {'errors': serializer.errors, 'success': False},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class ResetPasswordView(views.APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = ResetPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {'message': 'Contraseña actualizada exitosamente', 'success': True},
+                status=status.HTTP_200_OK
+            )
+        return Response(
+            {'errors': serializer.errors, 'success': False},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+class LoginView(views.APIView):
+    permission_classes = [permissions.AllowAny]
+
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['email', 'password'],
+            properties={
+                'email':    openapi.Schema(type=openapi.TYPE_STRING, example='admin@damabella.com'),
+                'password': openapi.Schema(type=openapi.TYPE_STRING, example='Admin1234'),
+            }
+        )
+    )
+    def post(self, request):
+        print('AUTH HEADER:', request.headers.get('Authorization'))
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            return Response(serializer.validated_data, status=status.HTTP_200_OK)
+        return Response(
+            {'success': False, 'errors': serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 class UsersViewSets(viewsets.GenericViewSet):
     queryset = Users.objects.all()
     serializer_class = UsersSerializer
     # permission_classes = []
     # authentication_classes = []
+    required_module = 'Users'
     filter_backends = [filters.SearchFilter]
     search_fields = ['doc_identity','name','email','phone','address','id_rol__name']
 
@@ -45,7 +143,7 @@ class UsersViewSets(viewsets.GenericViewSet):
         except Exception as ex:
             raise APIException(detail=str(ex),code="error de servidor")
         
-    @action(detail=False, methods=['POST'])
+    @action(detail=False, methods=['POST'], permission_classes=[permissions.AllowAny])
     def create_users(self, request):
         try:
             data = request.data
@@ -94,7 +192,7 @@ class UsersViewSets(viewsets.GenericViewSet):
             raise APIException(detail="Error interno del servidor",code="error de servidor")
         
         
-    @action(detail=False, methods=['GET'])
+    @action(detail=False, methods=['GET'], permission_classes = [permissions.AllowAny])
     def search_users(self, request):
         try:
             queryset = self.get_queryset()
@@ -111,7 +209,7 @@ class UsersViewSets(viewsets.GenericViewSet):
     def change_state(self, request, pk=None):
         try:
             user = self.get_object()
-            serializer = self.get_serializer_class(user, data=request.data, partial=True)
+            serializer = self.get_serializer(user, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response({'results':'estado cambiado exitosamente','User':serializer.data, 'success':True}, status=status.HTTP_200_OK)
@@ -133,7 +231,7 @@ class UsersViewSets(viewsets.GenericViewSet):
 class TypesDocsViewSets(viewsets.GenericViewSet):
     queryset = Typesdoc.objects.all()
     serializer_class = TypesDocsSerializers
-    # permission_classes = []
+    permission_classes = [permissions.AllowAny]
     # authentication_classes = []
 
     @action(detail=False,methods=['GET'])
