@@ -68,12 +68,13 @@ class RolesViewSets(viewsets.GenericViewSet):
         try:
             rol = self.get_object()
             rol.delete()
-            return Response({'results':'eliminado exitosamente', 'success':True}, status=status.HTTP_204_NO_CONTENT)
+            return Response({'results':'eliminado exitosamente', 'success':True}, status=status.HTTP_200_OK)
         except Roles.DoesNotExist:
             raise ObjectNotExists()
         except IntegrityError:
             raise IntegrityException()
         except Exception as ex:
+            print('error de servidor:',ex)
             raise APIException(detail=str(ex), code="error de servidor")
         
     @action(detail=True, methods=['PUT'])

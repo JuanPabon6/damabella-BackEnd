@@ -6,6 +6,7 @@ class Products(models.Model):
     name = models.CharField(max_length=120)
     category = models.ForeignKey(Categories, on_delete=models.CASCADE, related_name='products', default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -15,6 +16,12 @@ class Products(models.Model):
             name='price_greater_than_0',
             violation_error_code= 'precio_negativo',
             violation_error_message= 'el precio del producto no puede ser negativo'
+        ),
+        models.CheckConstraint(
+            condition=models.Q(purchase_price__gte=0),
+            name='purchase_price_grater_than_0',
+            violation_error_code='precio negativo',
+            violation_error_message='el precio de compra no puede ser negativo'
         )
         ]
 

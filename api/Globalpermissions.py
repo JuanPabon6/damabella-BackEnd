@@ -46,15 +46,65 @@ class HasModulePermission(BasePermission):
         'delete_rol' : 'Delete',
         'update_roles' : 'Edit',
 
+        #Colors
+        'create_colors' : 'Create',
+        'get_colors' : 'View',
+        'get_colors_by_id' : 'View',
+        'delete_color' : 'Delete',
+        'update_color' : 'Edit',
+
+        #Sizes
+        'create_sizes' : 'Create',
+        'get_sizes' : 'View',
+        'get_sizes_by_id' : 'View',
+        'delete_sizes' : 'Delete',
+        'update_sizes' : 'Edit',
+
+        #VariantProducts
+        'create_variant' : 'Create',
+        'get_variants' : 'View',
+        'get_variants_by_id' : 'View',
+        'delete_variant' : 'Delete',
+
+        #Purchases
+        'create_purchase' : 'Create',
+        'get_purchases' : 'View',
+        'get_purchases_by_id' : 'View',
+        'delete_purchase' : 'Delete',
+        'update_purchase' : 'Edit',
+        'search_purchases' : 'View',
+
+        #PurchaseDetail
+        'get_details' : 'View',
+        'get_detail_by_id' : 'View',
+        'get_details_by_purchase' : 'View',
+        'search_details' : 'View',
+
+        #states
+        'create_state' : 'Create',
+        'get_states' : 'View',
+        'get_states_by_id' : 'View',
+        'delete_states' : 'Delete',
+        'update_states' : 'Edit',
+
+        #Users
+        'get_users' : 'View',
+        'get_users_by_id' : 'View',
+        'create_users' : 'Create',
+        'update_users' : 'Edit',
+        'delete_users' : 'Delete',
+        'search_users' : 'View',
+        'export_users' : 'View',
+
         #compartidos
         'change_state' : 'Edit',
         'patch_state' : 'Edit',
     }
 
     def has_permission(self, request, view):
-        print('USER:', request.user)
-        print('IS AUTHENTICATED:', request.user.is_authenticated)
-        print('AUTH:', request.auth)
+        # print('USER:', request.user)
+        # print('IS AUTHENTICATED:', request.user.is_authenticated)
+        # print('AUTH:', request.auth)
         print('MODULE:', getattr(view, 'required_module', None))
         print('ACTION:', getattr(view, 'action', None))
         if not request.user or not request.user.is_authenticated:

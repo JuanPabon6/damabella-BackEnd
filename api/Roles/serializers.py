@@ -59,6 +59,8 @@ class PatchStateRolesSerializer(serializers.ModelSerializer):
         return attrs
 
 class PermissionsSerializer(serializers.ModelSerializer):
+    module = serializers.CharField(source='Module_permission', read_only=True)
+    action = serializers.CharField(source='Action', read_only=True)
     class Meta:
         model = Permissions
         fields = '__all__'
