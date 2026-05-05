@@ -82,7 +82,7 @@ class ProvidersViewSets(viewsets.GenericViewSet):
                 return Response({'message':'sin resultados', 'results':[], 'success':False}, status=status.HTTP_200_OK)
             
             serializer = self.get_serializer(instance, many=True)
-            return Response({'messsage':'resultados obtenidos', 'results':serializer.data, 'success':True}, status=status.HTTP_200_OK)
+            return Response({'message':'resultados obtenidos', 'results':serializer.data, 'success':True}, status=status.HTTP_200_OK)
 
     @action(detail=True,methods=['PATCH'])
     def patch_state(self, request, pk=None):

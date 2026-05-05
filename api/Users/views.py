@@ -12,6 +12,7 @@ from .Services.ExportUsers import Export_users_list
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.core.mail import send_mail
 
 
 class ChangePasswordView(views.APIView):
@@ -156,6 +157,7 @@ class UsersViewSets(viewsets.GenericViewSet):
         except MultipleObjectsReturned:
             raise MultiResults()
         except Exception as ex:
+            print("error en servidor:",ex)
             raise APIException(detail=str(ex), code="error de servidor")
         
     @action(detail=True, methods=['DELETE'])
@@ -163,7 +165,7 @@ class UsersViewSets(viewsets.GenericViewSet):
         try:
             user = self.get_object()        
             user.delete()
-            return Response({'results':'eliminado exitosamente', 'success':True}, status=status.HTTP_204_NO_CONTENT)
+            return Response({'results':'eliminado exitosamente', 'success':True}, status=status.HTTP_200_OK)
         except Users.DoesNotExist:
             raise ObjectNotExists()
         except IntegrityError:

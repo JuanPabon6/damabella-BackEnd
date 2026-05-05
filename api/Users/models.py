@@ -21,7 +21,6 @@ class Users(AbstractBaseUser):
     doc_identity = models.CharField(max_length=30, unique=True)
     name = models.CharField(max_length=100)
     email = models.EmailField(max_length=120, unique=True)
-    # password = models.TextField()
     phone = models.CharField(max_length=20)
     address = models.CharField(max_length=200, default="sin direccion") 
     created_at = models.DateTimeField(auto_now_add=True)

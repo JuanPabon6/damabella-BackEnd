@@ -51,7 +51,19 @@ INSTALLED_APPS = [
     'api.Orders',
     'api.Inventory',
     'api.Clients',
+    'api.Purchases',
+    'api.States',
+    'api.Sales',
+    'api.Returns'
 ]
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'pabonjuanjose6@gmail.com'
+EMAIL_HOST_PASSWORD = 'tsch nklo iwbm coqr'
+DEFAULT_FROM_EMAIL = 'pabonjuanjose6@gmail.com'
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -106,10 +118,6 @@ SWAGGER_SETTINGS = {
     'DEFAULT_AUTO_SCHEMA_CLASS': 'drf_yasg.inspectors.SwaggerAutoSchema',
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-EMAIL_HOST_USER = 'damabella@gmail.com'
-
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
@@ -130,7 +138,10 @@ CORS_ORIGIN_WHITELIST = [
 
 CORS_ORIGIN_ALLOW_ALL = True
 
+
 CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_ALL_ORIGIN = True
 
 CORS_ALLOW_METHODS = (
     'GET',
@@ -152,7 +163,8 @@ CORS_ALLOW_HEADERS = (
     'x-csrftoken',
     'x-requested-with',
     'Access-Control-Allow-Origin',
-    'charset'
+    'charset',
+    'ngrok-skip-browser-warning',
 )
 
 WSGI_APPLICATION = 'damabellaBackEnd.wsgi.application'

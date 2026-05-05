@@ -6,9 +6,12 @@ from django.core.exceptions import MultipleObjectsReturned
 from django.db.utils import IntegrityError
 from .models import Products, Sizes, Colors, ProductPhoto, VariantProduct
 from .serializers import ProductsSerializer, PatchStateProductsSerializer, ColorsSerializer, SizesSerializer, ProductsPhotosSerializer, VariantProductsSerializer
-from django.shortcuts import get_list_or_404,get_object_or_404
-from .services import create_inventory_for_variant
+from .services import create_inventory_for_variant, Export_products_list
 from django.db import transaction
+from api.Inventory.services import add_stock
+import logging
+
+logger = logging.getLogger(__name__)
 
 class ProductsViewSets(viewsets.GenericViewSet):
     queryset = Products.objects.all()
@@ -47,16 +50,30 @@ class ProductsViewSets(viewsets.GenericViewSet):
             return Response({'error':str(ex), 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False,methods=['POST'])
+    @transaction.atomic
     def create_products(self, request):
         try:
-            data = request.data
-            serializer = self.get_serializer(data=data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response({'message':'creado exitosamente', 'object':serializer.data, 'success':True}, status=status.HTTP_201_CREATED)
+            data_product = request.data
+            serializer_product = self.get_serializer(data=data_product)
+            serializer_product.is_valid(raise_exception=True)
+            product_instance = serializer_product.save()
+
+            data_variant = request.data
+            serializer_variant = VariantProductsSerializer(data=data_variant)
+            serializer_variant.is_valid(raise_exception=True)
+            variant_instance = serializer_variant.save(product=product_instance)
+            
+            create_inventory_for_variant(variant=variant_instance)
+            
+            quantity = request.data.get('stock')
+
+            add_stock(variant_instance, quantity)
+        
+            return Response({'message':'creado exitosamente', 'product':serializer_product.data, 'variant':serializer_variant.data, 'success':True}, status=status.HTTP_201_CREATED)
         except IntegrityError:
             return Response({'message':'error de lalves', 'results':[], 'success':False}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as ex:
+            print('error de servidor:',ex)
             return Response({'error':str(ex), 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     @action(detail=True,methods=['DELETE'])
@@ -68,6 +85,7 @@ class ProductsViewSets(viewsets.GenericViewSet):
         except MultipleObjectsReturned:
             return Response({'message':'multiples objetos retornados', 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as ex:
+            logger.critical(f'error de servidor: {ex}')
             return Response({'error':str(ex), 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     @action(detail=True,methods=['PUT'])
@@ -101,9 +119,10 @@ class ProductsViewSets(viewsets.GenericViewSet):
     def patch_state(self, request, pk=None):
         try:
             product = self.get_object()
-            serializer = self.get_serializer_class(product, data=request.data)
+            serializer = self.get_serializer(product, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            print(f'data: {request.data}')
             return Response({'message':'estado actualizado exitosamente', 'product':serializer.data, 'success':True}, status=status.HTTP_200_OK)
         except MultipleObjectsReturned:
             return Response({'message':'multiples objetos retornados', 'results':[], 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -112,12 +131,25 @@ class ProductsViewSets(viewsets.GenericViewSet):
         except IntegrityError:
             return Response({'message':'error de llaves', 'results':[], 'success':False}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as ex:
+            logger.critical(f'error de servidor: {ex}, data: {serializer.data}')
             return Response({'error':str(ex), 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    @action(detail=False,methods=['GET'])
+    def export_products(self, request):
+        try:
+            queryset = self.get_queryset().select_related('category').prefetch_related('variants','variants__size','variants__color')
+
+            list = Export_products_list(queryset)
+
+            return list
+        except Exception as ex:
+            return Response({'message':str(ex),'success':False},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
 class ColorViewSets(viewsets.GenericViewSet):
     queryset = Colors.objects.all()
     serializer_class = ColorsSerializer
+    required_module = 'Products'
     # permission_classes = []
     # authentication_classes = []
 
@@ -186,6 +218,7 @@ class ColorViewSets(viewsets.GenericViewSet):
 class SizesViewSets(viewsets.GenericViewSet):
     queryset = Sizes.objects.all()
     serializer_class = SizesSerializer
+    requires_module = 'Products'
     # permission_classes = []
     # authentication_classes = []
 
@@ -307,6 +340,7 @@ class ProductPhotosViewSets(viewsets.GenericViewSet):
 class VariantProductViewSets(viewsets.GenericViewSet):
     queryset = VariantProduct.objects.all()
     serializer_class = VariantProductsSerializer    
+    required_module = 'Products'
     # permission_classes = []
     # authentication_classes = []
 
@@ -325,17 +359,6 @@ class VariantProductViewSets(viewsets.GenericViewSet):
         except MultipleObjectsReturned:
             return Response({'message':'multiples objetos retornados','results':[],'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-    @action(detail=False,methods=['POST'])    
-    def create_variant(self, request):
-        with transaction.atomic():
-            data = request.data
-            serializer = self.get_serializer(data=data)
-            serializer.is_valid(raise_exception=True)
-            variant = serializer.save()
-
-            create_inventory_for_variant(variant=variant)
-            return Response({'message':'variante creada exitosamente', 'object':serializer.data,'success':True},status=status.HTTP_201_CREATED)
-        
     @action(detail=True,methods=['DELETE'])
     def delete_variant(self, request, pk=None):
         try:
@@ -344,6 +367,7 @@ class VariantProductViewSets(viewsets.GenericViewSet):
             return Response({'message':'variante eliminada exitosamente', 'success':True}, status=status.HTTP_200_OK)
         except MultipleObjectsReturned:
             return Response({'message':'multiples objetos retornados', 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         
         
     
