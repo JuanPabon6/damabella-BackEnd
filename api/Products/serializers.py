@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Products, Sizes, Colors, ProductPhoto, VariantProduct
 
 class ProductsSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source='category.name', read_only=True)
 
     def validate_price(self, value):
         if value <= 0:
@@ -48,6 +49,13 @@ class ProductsPhotosSerializer(serializers.ModelSerializer):
         }
 
 class VariantProductsSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name', read_only=True)
+    size_name    = serializers.CharField(source='size.name', read_only=True)
+    color_name   = serializers.CharField(source='color.name', read_only=True)
+    price        = serializers.DecimalField(source='product.price', max_digits=10, decimal_places=2, read_only=True)
+    category     = serializers.IntegerField(source='product.category.id_category', read_only=True)
+    category_name = serializers.CharField(source='product.category.name', read_only=True)
+
     def validate_sku(self, value):
         if VariantProduct.objects.filter(sku=value).exists():
             raise serializers.ValidationError(

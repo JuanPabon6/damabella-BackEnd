@@ -118,6 +118,7 @@ class ResetPasswordSerializer(serializers.Serializer):
         self.user.save()
         self.otp.is_used = True
         self.otp.save()
+    
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -177,6 +178,8 @@ class LoginSerializer(serializers.Serializer):
         }
 
 class UsersSerializer(serializers.ModelSerializer):
+    role_name = serializers.CharField(source='id_rol.name', read_only=True)
+    type_doc_name = serializers.CharField(source='type_doc.name', read_only=True)
     class Meta:
         model = Users
         fields = '__all__'
