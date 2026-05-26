@@ -54,7 +54,8 @@ INSTALLED_APPS = [
     'api.Purchases',
     'api.States',
     'api.Sales',
-    'api.Returns'
+    'api.Returns',
+    'api.Dashboard',
 ]
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

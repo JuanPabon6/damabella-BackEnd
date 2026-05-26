@@ -1,6 +1,6 @@
 from django.db import models
 import string, random
-from api.Clients.models import Clients
+from api.Users.models import Clients
 from api.States.models import States
 from api.Orders.models import PaymentMethods
 from api.Products.models import VariantProduct
@@ -14,10 +14,10 @@ def generate_number():
 class Sales(models.Model):
     id_sale = models.AutoField(primary_key=True)
     number_sale = models.CharField(max_length=50, unique=True, editable=False, default=generate_number)
-    client = models.ForeignKey(Clients, on_delete=models.CASCADE, related_name='sales')
+    client = models.ForeignKey(Clients, on_delete=models.CASCADE, related_name='sales', default=0)
     date_sale = models.DateTimeField(auto_now_add=True)
-    state = models.ForeignKey(States, on_delete=models.PROTECT, related_name='sales')
-    payment_method = models.ForeignKey(PaymentMethods, on_delete=models.PROTECT, related_name='sales')
+    state = models.ForeignKey(States, on_delete=models.PROTECT, related_name='sales', default=0)
+    payment_method = models.ForeignKey(PaymentMethods, on_delete=models.PROTECT, related_name='sales', default=0)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)
     iva = models.DecimalField(max_digits=10, decimal_places=2)
     total = models.DecimalField(max_digits=10, decimal_places=2)
@@ -31,8 +31,8 @@ class Sales(models.Model):
 
 class SalesDetail(models.Model):
     id_detail = models.AutoField(primary_key=True)
-    sale = models.ForeignKey(Sales, on_delete=models.CASCADE, related_name='sale_detail')
-    variant = models.ForeignKey(VariantProduct, on_delete=models.CASCADE, related_name='sales_details')
+    sale = models.ForeignKey(Sales, on_delete=models.CASCADE, related_name='sale_detail', default=0)
+    variant = models.ForeignKey(VariantProduct, on_delete=models.CASCADE, related_name='sales_details', default=0)
     quantity = models.IntegerField()
     unit_price = models.DecimalField(max_digits=10,decimal_places=2)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)

@@ -5,8 +5,10 @@ class HasModulePermission(BasePermission):
     message = "no tienes permisos para realizar esta accion"
 
     Actions_map = {
+        # 'Delete', 'View', 'Edit', 'Create'
+
         #Categories
-        'create_categories' : 'Create',# 'Delete', 'View', 'Edit', 'Create
+        'create_categories' : 'Create',
         'get_categories' : 'View',
         'search_categories' : 'View',
         'get_categories_by_id' : 'View',
@@ -95,6 +97,42 @@ class HasModulePermission(BasePermission):
         'delete_users' : 'Delete',
         'search_users' : 'View',
         'export_users' : 'View',
+
+        #Paymentmethod
+        'list' : 'View',
+        'retrieve' : 'View',
+        'create' : 'Create',
+        'update' : 'Edit',
+        'partial_update' : 'Edit',
+        'destroy' : 'Delete',
+
+        #Orders
+        'get_orders' : 'View',
+        'get_orders_by_id' : 'View',
+        'create_orders' : 'Create',
+        'delete_orders' : 'Delete',
+        'update_orders' : 'Edit',
+        'search_orders' : 'View',
+        'export_orders' : 'View',
+
+        #OrdersDetail
+        'get_details' : 'View',
+        'get_details_by_id' : 'View',
+        'get_details_by_order' : 'View',
+        'search_details' : 'View',
+
+        #Sales
+        'get_sales' : 'View',
+        'get_sales_by_id' : 'View',
+        'create_sale' : 'Create',
+        'delete_sale' : 'Delete',
+        'update_sales' : 'Edit',
+        'search_sales' : 'View',
+        'export_sales' : 'View',
+
+        #SalesDetail
+        'get_sales_by_id' : 'View',
+        'search_details' : 'View',
 
         #compartidos
         'change_state' : 'Edit',

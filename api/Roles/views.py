@@ -212,7 +212,16 @@ class RolPermissionViewSets(viewsets.GenericViewSet):
     
     @action(detail=True,methods=['GET'])
     def get_permissions_by_rol(self, request, pk=None):
-        rol_permission = RolPermission.objects.filter(rol=pk).select_related('permission')
+
+        if not Roles.objects.filter(idRol=pk).exists():
+                return Response(
+                    {'message': 'El rol especificado no existe', 'results': [], 'success': False},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+        print(f'id del rol: {pk}')
+
+        rol_permission = RolPermission.objects.filter(rol_id=pk).select_related('permission')
+        print(f'permisos: {rol_permission}')
         if not rol_permission.exists():
             return Response(
                 {'message': 'Este rol no tiene permisos asignados', 'results': [], 'success': True},

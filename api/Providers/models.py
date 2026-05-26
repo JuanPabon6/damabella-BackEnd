@@ -4,7 +4,7 @@ from api.Users.models import Typesdoc
 class Providers(models.Model):
     id_provider = models.AutoField(primary_key=True)
     name = models.CharField(max_length=120)
-    type_doc =  models.ForeignKey(Typesdoc, on_delete=models.PROTECT)
+    type_doc =  models.ForeignKey(Typesdoc, on_delete=models.PROTECT, default=0)
     number_doc = models.CharField(max_length=30, unique=True)
     contact_name = models.CharField(max_length=100)
     phone = models.CharField(max_length=20) 

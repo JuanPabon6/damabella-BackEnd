@@ -1,9 +1,9 @@
 from django.shortcuts import render
-from rest_framework import viewsets, status, filters
+from rest_framework import viewsets, status, filters, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from .models import Orders, OrdersDetail
-from .serializers import OrdersSerializers, OrderDetailSerializer
+from .models import Orders, OrdersDetail, PaymentMethods
+from .serializers import OrdersSerializers, OrderDetailSerializer, PaymentMethodsSerializer
 from django.db.utils import IntegrityError
 from django.core.exceptions import MultipleObjectsReturned
 from .services import Export_orders_list
@@ -15,6 +15,8 @@ class OrdersViewSet(viewsets.GenericViewSet):
     queryset = Orders.objects.all()
     serializer_class = OrdersSerializers
     filter_backends = [filters.SearchFilter]
+    permission_classes = [permissions.AllowAny]
+    required_module = 'Pedidos'
     search_fields = ['id_order','number_order','client','order_date','payment_method','address_shipment','person_receives','subtotal','iva','total','observations','state',
     ]
 
@@ -47,6 +49,7 @@ class OrdersViewSet(viewsets.GenericViewSet):
     @action(detail=False,methods=['POST'])
     def create_orders(self, request):
         try:
+            print(f'data enviada: {request.data}')
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -55,6 +58,7 @@ class OrdersViewSet(viewsets.GenericViewSet):
             return Response({'message':'multiples objetosretornados','success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as ex:
             print('error de servidor',ex)
+            print(f'campos de errores: {serializer.errors}')
             return Response({'message':str(ex),'success':False},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=True,methods=['DELETE'])
@@ -132,6 +136,7 @@ class OrdersDetailsViewSet(viewsets.GenericViewSet):
     queryset = OrdersDetail.objects.all()
     serializer_class = OrderDetailSerializer
     filter_backends = [filters.SearchFilter]
+    required_module = 'Pedidos'
     search_fields = ['id_detail','order','variant','quantity','sales_price','subtotal']
 
     @action(detail=False,methods=['GET'])
@@ -192,7 +197,10 @@ class OrdersDetailsViewSet(viewsets.GenericViewSet):
             return Response({'message':str(ex),'success':False},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
-        
+class PaymentMethodsViewSet(viewsets.ModelViewSet):
+    queryset = PaymentMethods.objects.all()
+    serializer_class = PaymentMethodsSerializer
+    required_module = 'Orders'
 
         
     

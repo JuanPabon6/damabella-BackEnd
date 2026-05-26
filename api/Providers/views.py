@@ -14,7 +14,7 @@ class ProvidersViewSets(viewsets.GenericViewSet):
     serializer_class = ProvidersSerializers
     # authentication_classes = []
     # permission_classes = []
-    required_module = 'Providers'
+    required_module = 'Proveedores'
     filter_backends = [filters.SearchFilter]
     fields_search = ['nit_document','kompany_name','contact_name','phone','address']
 

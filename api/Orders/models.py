@@ -1,5 +1,5 @@
 from django.db import models
-from api.Clients.models import Clients
+from api.Users.models import Clients
 from api.States.models import States
 from api.Products.models import VariantProduct
 import random,string
@@ -20,16 +20,16 @@ class PaymentMethods(models.Model):
 class Orders(models.Model):
     id_order = models.AutoField(primary_key=True)
     number_order = models.CharField(max_length=50, unique=True, editable=False, default=generate_number_order)
-    client = models.ForeignKey(Clients, on_delete=models.CASCADE)
+    client = models.ForeignKey(Clients, on_delete=models.CASCADE, default=1)
     order_date = models.DateTimeField(auto_now_add=True)
-    payment_method = models.ForeignKey(PaymentMethods, on_delete=models.PROTECT)
+    payment_method = models.ForeignKey(PaymentMethods, on_delete=models.PROTECT, default=1)
     address_shipment = models.CharField(max_length=200)
     person_receives = models.CharField(max_length=100)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     iva = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     observations = models.CharField(max_length=300, null=True, blank=True)
-    state = models.ForeignKey(States, on_delete=models.PROTECT)
+    state = models.ForeignKey(States, on_delete=models.PROTECT, default=1)
 
     class Meta:
         db_table = 'Orders'
@@ -37,8 +37,8 @@ class Orders(models.Model):
 
 class OrdersDetail(models.Model):
     id_detail = models.AutoField(primary_key=True)
-    order = models.ForeignKey(Orders, on_delete=models.CASCADE, related_name='detail_order')
-    variant = models.ForeignKey(VariantProduct, on_delete=models.PROTECT, related_name='details_order')
+    order = models.ForeignKey(Orders, on_delete=models.CASCADE, related_name='detail_order', default=0)
+    variant = models.ForeignKey(VariantProduct, on_delete=models.PROTECT, related_name='details_order', default=0)
     quantity = models.IntegerField()
     sales_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
