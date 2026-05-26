@@ -1,0 +1,1592 @@
+[
+{
+    "model": "Roles.roles",
+    "pk": 1,
+    "fields": {
+        "name": "administrador",
+        "description": "usuario administrador del sistema",
+        "is_active": true
+    }
+},
+{
+    "model": "Roles.roles",
+    "pk": 2,
+    "fields": {
+        "name": "clientes",
+        "description": "cliente concurrente al sistema",
+        "is_active": true
+    }
+},
+{
+    "model": "Roles.roles",
+    "pk": 6,
+    "fields": {
+        "name": "Empleado",
+        "description": "Encargado de gestionar ciertos m¾dulos",
+        "is_active": true
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 1,
+    "fields": {
+        "Module_permission": "Clientes",
+        "Action": "View"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 2,
+    "fields": {
+        "Module_permission": "Clientes",
+        "Action": "Create"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 3,
+    "fields": {
+        "Module_permission": "Clientes",
+        "Action": "Edit"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 4,
+    "fields": {
+        "Module_permission": "Clientes",
+        "Action": "Delete"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 5,
+    "fields": {
+        "Module_permission": "Proveedores",
+        "Action": "View"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 6,
+    "fields": {
+        "Module_permission": "Proveedores",
+        "Action": "Create"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 7,
+    "fields": {
+        "Module_permission": "Proveedores",
+        "Action": "Edit"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 8,
+    "fields": {
+        "Module_permission": "Proveedores",
+        "Action": "Delete"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 9,
+    "fields": {
+        "Module_permission": "Categorias",
+        "Action": "View"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 10,
+    "fields": {
+        "Module_permission": "Categorias",
+        "Action": "Create"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 11,
+    "fields": {
+        "Module_permission": "Categorias",
+        "Action": "Edit"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 12,
+    "fields": {
+        "Module_permission": "Categorias",
+        "Action": "Delete"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 13,
+    "fields": {
+        "Module_permission": "Productos",
+        "Action": "View"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 14,
+    "fields": {
+        "Module_permission": "Productos",
+        "Action": "Create"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 15,
+    "fields": {
+        "Module_permission": "Productos",
+        "Action": "Edit"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 16,
+    "fields": {
+        "Module_permission": "Productos",
+        "Action": "Delete"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 17,
+    "fields": {
+        "Module_permission": "Usuarios",
+        "Action": "View"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 18,
+    "fields": {
+        "Module_permission": "Usuarios",
+        "Action": "Create"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 19,
+    "fields": {
+        "Module_permission": "Usuarios",
+        "Action": "Edit"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 20,
+    "fields": {
+        "Module_permission": "Usuarios",
+        "Action": "Delete"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 21,
+    "fields": {
+        "Module_permission": "Roles",
+        "Action": "View"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 22,
+    "fields": {
+        "Module_permission": "Roles",
+        "Action": "Create"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 23,
+    "fields": {
+        "Module_permission": "Roles",
+        "Action": "Edit"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 24,
+    "fields": {
+        "Module_permission": "Roles",
+        "Action": "Delete"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 25,
+    "fields": {
+        "Module_permission": "Compras",
+        "Action": "View"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 26,
+    "fields": {
+        "Module_permission": "Compras",
+        "Action": "Create"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 27,
+    "fields": {
+        "Module_permission": "Compras",
+        "Action": "Edit"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 28,
+    "fields": {
+        "Module_permission": "Compras",
+        "Action": "Delete"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 29,
+    "fields": {
+        "Module_permission": "Estados",
+        "Action": "View"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 30,
+    "fields": {
+        "Module_permission": "Estados",
+        "Action": "Create"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 31,
+    "fields": {
+        "Module_permission": "Estados",
+        "Action": "Edit"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 32,
+    "fields": {
+        "Module_permission": "Estados",
+        "Action": "Delete"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 33,
+    "fields": {
+        "Module_permission": "Pedidos",
+        "Action": "View"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 34,
+    "fields": {
+        "Module_permission": "Pedidos",
+        "Action": "Create"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 35,
+    "fields": {
+        "Module_permission": "Pedidos",
+        "Action": "Edit"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 36,
+    "fields": {
+        "Module_permission": "Pedidos",
+        "Action": "Delete"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 37,
+    "fields": {
+        "Module_permission": "Ventas",
+        "Action": "View"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 38,
+    "fields": {
+        "Module_permission": "Ventas",
+        "Action": "Create"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 39,
+    "fields": {
+        "Module_permission": "Ventas",
+        "Action": "Edit"
+    }
+},
+{
+    "model": "Roles.permissions",
+    "pk": 40,
+    "fields": {
+        "Module_permission": "Ventas",
+        "Action": "Delete"
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 1,
+    "fields": {
+        "rol": 1,
+        "permission": 1
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 2,
+    "fields": {
+        "rol": 1,
+        "permission": 2
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 3,
+    "fields": {
+        "rol": 1,
+        "permission": 3
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 4,
+    "fields": {
+        "rol": 1,
+        "permission": 4
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 5,
+    "fields": {
+        "rol": 1,
+        "permission": 5
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 6,
+    "fields": {
+        "rol": 1,
+        "permission": 6
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 7,
+    "fields": {
+        "rol": 1,
+        "permission": 7
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 8,
+    "fields": {
+        "rol": 1,
+        "permission": 8
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 9,
+    "fields": {
+        "rol": 1,
+        "permission": 9
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 10,
+    "fields": {
+        "rol": 1,
+        "permission": 10
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 11,
+    "fields": {
+        "rol": 1,
+        "permission": 11
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 12,
+    "fields": {
+        "rol": 1,
+        "permission": 12
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 13,
+    "fields": {
+        "rol": 1,
+        "permission": 13
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 14,
+    "fields": {
+        "rol": 1,
+        "permission": 14
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 15,
+    "fields": {
+        "rol": 1,
+        "permission": 15
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 16,
+    "fields": {
+        "rol": 1,
+        "permission": 16
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 17,
+    "fields": {
+        "rol": 1,
+        "permission": 17
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 18,
+    "fields": {
+        "rol": 1,
+        "permission": 18
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 19,
+    "fields": {
+        "rol": 1,
+        "permission": 19
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 20,
+    "fields": {
+        "rol": 1,
+        "permission": 20
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 21,
+    "fields": {
+        "rol": 1,
+        "permission": 21
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 22,
+    "fields": {
+        "rol": 1,
+        "permission": 22
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 23,
+    "fields": {
+        "rol": 1,
+        "permission": 23
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 24,
+    "fields": {
+        "rol": 1,
+        "permission": 24
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 25,
+    "fields": {
+        "rol": 2,
+        "permission": 13
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 26,
+    "fields": {
+        "rol": 2,
+        "permission": 9
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 27,
+    "fields": {
+        "rol": 2,
+        "permission": 17
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 28,
+    "fields": {
+        "rol": 1,
+        "permission": 25
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 29,
+    "fields": {
+        "rol": 1,
+        "permission": 26
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 30,
+    "fields": {
+        "rol": 1,
+        "permission": 27
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 31,
+    "fields": {
+        "rol": 1,
+        "permission": 28
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 32,
+    "fields": {
+        "rol": 1,
+        "permission": 29
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 33,
+    "fields": {
+        "rol": 1,
+        "permission": 30
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 34,
+    "fields": {
+        "rol": 1,
+        "permission": 31
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 35,
+    "fields": {
+        "rol": 1,
+        "permission": 32
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 53,
+    "fields": {
+        "rol": 6,
+        "permission": 1
+    }
+},
+{
+    "model": "Roles.rolpermission",
+    "pk": 54,
+    "fields": {
+        "rol": 6,
+        "permission": 9
+    }
+},
+{
+    "model": "Users.users",
+    "fields": {
+        "password": "pbkdf2_sha256$1000000$k5PuQhaUbekrAkYm8gLl6f$PeMv3ONjmPwBHmyKCuo2B/LrzgchQHOqGiTZ9neonhQ=",
+        "last_login": "2026-03-04T22:16:32.866Z",
+        "type_doc": 1,
+        "doc_identity": "1033259234",
+        "name": "juan jose admin",
+        "email": "pabonjuanjose6@gmail.com",
+        "phone": "3147854500",
+        "address": "Cra88A#18c26",
+        "created_at": "2026-03-04T22:18:01.324Z",
+        "updated_at": "2026-03-10T13:20:37.570Z",
+        "id_rol": 1,
+        "is_active": true
+    }
+},
+{
+    "model": "Users.users",
+    "fields": {
+        "password": "pbkdf2_sha256$1000000$g9a1XKJJ7hKvPdVSaJ7aGl$SVmQJ4V6x8tHqUOk3cOPezkdqGy9I4+fbEX7i3P3IAg=",
+        "last_login": null,
+        "type_doc": 1,
+        "doc_identity": "1033259235",
+        "name": "juan jose",
+        "email": "pabonjuanjose909@gmail.com",
+        "phone": "3147854500",
+        "address": "cra88a#18c26",
+        "created_at": "2026-03-05T06:07:03.403Z",
+        "updated_at": "2026-05-06T13:45:18.886Z",
+        "id_rol": 2,
+        "is_active": false
+    }
+},
+{
+    "model": "Users.users",
+    "fields": {
+        "password": "pbkdf2_sha256$1000000$JzVQd0MOWGIkrzySsLop8m$sn9PMO+ae9uim286ql0nFqN8nBzhEjSQgWNohsb+T8Y=",
+        "last_login": null,
+        "type_doc": 1,
+        "doc_identity": "123445555",
+        "name": "Estefania Hernandez",
+        "email": "estefa@gmail.com",
+        "phone": "3017234467",
+        "address": "Calle 48 #59-13",
+        "created_at": "2026-03-09T14:27:00.415Z",
+        "updated_at": "2026-03-09T14:27:00.415Z",
+        "id_rol": 2,
+        "is_active": true
+    }
+},
+{
+    "model": "Users.users",
+    "fields": {
+        "password": "pbkdf2_sha256$1000000$UXC4rPPIVZyqCx2g2BiVIN$dxg8gnhL77xXvEY+m+GC9qRAfbXNx3Q99Xm9B63N5rQ=",
+        "last_login": null,
+        "type_doc": 1,
+        "doc_identity": "3423421432",
+        "name": "santiago madera",
+        "email": "maderavegasantiago17@gmail.com",
+        "phone": "3212423434",
+        "address": "cra88a#18c26",
+        "created_at": "2026-03-17T12:16:44.059Z",
+        "updated_at": "2026-03-17T14:15:00.088Z",
+        "id_rol": 2,
+        "is_active": true
+    }
+},
+{
+    "model": "Users.users",
+    "fields": {
+        "password": "pbkdf2_sha256$1000000$NMnWKz8Po6Pbwgf9zZYjkY$Mc9IXXiy3VkRVXsNdPhJA/PtxgBWB3bXKhM+p2MFE0c=",
+        "last_login": null,
+        "type_doc": 1,
+        "doc_identity": "1234567890",
+        "name": "Estefa",
+        "email": "estefa429@gmail.com",
+        "phone": "3001234567",
+        "address": "CR 76 # 91 A - 108",
+        "created_at": "2026-03-18T13:30:51.381Z",
+        "updated_at": "2026-03-18T13:30:51.381Z",
+        "id_rol": 2,
+        "is_active": true
+    }
+},
+{
+    "model": "Users.users",
+    "fields": {
+        "password": "pbkdf2_sha256$1000000$4rd2o0r9fXFOwHUCRp02tL$Jn5/lTvMsMHi+7CVjXq88aIxwNDfiGrMMt/oELoBed0=",
+        "last_login": null,
+        "type_doc": 1,
+        "doc_identity": "1234567898",
+        "name": "Estefa",
+        "email": "estefaa@gmail.com",
+        "phone": "3001234567",
+        "address": "CR 76 # 91 A - 108",
+        "created_at": "2026-03-18T13:32:23.480Z",
+        "updated_at": "2026-05-05T20:51:40.650Z",
+        "id_rol": 2,
+        "is_active": false
+    }
+},
+{
+    "model": "Users.users",
+    "fields": {
+        "password": "pbkdf2_sha256$1000000$5HpqjCV1tQZPNvvdjxm6w2$Y/sbW4n2QcC8X5o9vQM8kLM0rqR/IV6NhddYVr90pUQ=",
+        "last_login": null,
+        "type_doc": 1,
+        "doc_identity": "1017259943",
+        "name": "Estefania Hernßndez",
+        "email": "estefah@gmail.com",
+        "phone": "30155",
+        "address": "Calle 50",
+        "created_at": "2026-03-25T17:47:05.247Z",
+        "updated_at": "2026-03-25T17:47:05.247Z",
+        "id_rol": 1,
+        "is_active": true
+    }
+},
+{
+    "model": "Users.users",
+    "fields": {
+        "password": "pbkdf2_sha256$1000000$CP5s1Y3jCMhjTs2Gdj79LL$Ax4kyhpChbXB/dXFYWmrmqgV3IbU25SO5KV6pmrv+q0=",
+        "last_login": null,
+        "type_doc": 1,
+        "doc_identity": "1017255994",
+        "name": "estefa",
+        "email": "estefa4@gmail.com",
+        "phone": "321457751",
+        "address": "sin direccion",
+        "created_at": "2026-03-30T21:10:18.259Z",
+        "updated_at": "2026-05-05T20:51:30.854Z",
+        "id_rol": 2,
+        "is_active": false
+    }
+},
+{
+    "model": "Users.users",
+    "fields": {
+        "password": "pbkdf2_sha256$1000000$knGuPQfMzCQ988hZtPqZXs$UYLjk3/gHIMbt5qjoFqdXykprIZR7AX2p1toF701i+0=",
+        "last_login": null,
+        "type_doc": 1,
+        "doc_identity": "1017259944",
+        "name": "estefa",
+        "email": "estefahl@gmail.com",
+        "phone": "3017239960",
+        "address": "CR 76 # 91 A - 108",
+        "created_at": "2026-03-30T21:11:29.508Z",
+        "updated_at": "2026-05-05T20:51:23.012Z",
+        "id_rol": 2,
+        "is_active": false
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 1,
+    "fields": {
+        "user": [
+            "pabonjuanjose6@gmail.com"
+        ],
+        "code": "280831",
+        "created_at": "2026-03-05T02:07:07.349Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 2,
+    "fields": {
+        "user": [
+            "pabonjuanjose6@gmail.com"
+        ],
+        "code": "470545",
+        "created_at": "2026-03-05T02:15:35.195Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 4,
+    "fields": {
+        "user": [
+            "pabonjuanjose6@gmail.com"
+        ],
+        "code": "161236",
+        "created_at": "2026-03-17T12:11:12.548Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 5,
+    "fields": {
+        "user": [
+            "maderavegasantiago17@gmail.com"
+        ],
+        "code": "909887",
+        "created_at": "2026-03-17T12:17:26.672Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 6,
+    "fields": {
+        "user": [
+            "maderavegasantiago17@gmail.com"
+        ],
+        "code": "446727",
+        "created_at": "2026-03-17T12:20:18.038Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 7,
+    "fields": {
+        "user": [
+            "maderavegasantiago17@gmail.com"
+        ],
+        "code": "328478",
+        "created_at": "2026-03-17T12:20:19.744Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 8,
+    "fields": {
+        "user": [
+            "maderavegasantiago17@gmail.com"
+        ],
+        "code": "555924",
+        "created_at": "2026-03-17T12:20:20.456Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 9,
+    "fields": {
+        "user": [
+            "maderavegasantiago17@gmail.com"
+        ],
+        "code": "719617",
+        "created_at": "2026-03-17T12:20:20.809Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 10,
+    "fields": {
+        "user": [
+            "maderavegasantiago17@gmail.com"
+        ],
+        "code": "173223",
+        "created_at": "2026-03-17T12:20:21.007Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 11,
+    "fields": {
+        "user": [
+            "maderavegasantiago17@gmail.com"
+        ],
+        "code": "594184",
+        "created_at": "2026-03-17T12:20:21.210Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 12,
+    "fields": {
+        "user": [
+            "maderavegasantiago17@gmail.com"
+        ],
+        "code": "201780",
+        "created_at": "2026-03-17T12:20:22.700Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 13,
+    "fields": {
+        "user": [
+            "maderavegasantiago17@gmail.com"
+        ],
+        "code": "592409",
+        "created_at": "2026-03-17T12:20:23.659Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 14,
+    "fields": {
+        "user": [
+            "maderavegasantiago17@gmail.com"
+        ],
+        "code": "686704",
+        "created_at": "2026-03-17T12:21:53.204Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 15,
+    "fields": {
+        "user": [
+            "maderavegasantiago17@gmail.com"
+        ],
+        "code": "407991",
+        "created_at": "2026-03-17T12:30:57.257Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 16,
+    "fields": {
+        "user": [
+            "maderavegasantiago17@gmail.com"
+        ],
+        "code": "218677",
+        "created_at": "2026-03-17T12:34:17.462Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 17,
+    "fields": {
+        "user": [
+            "maderavegasantiago17@gmail.com"
+        ],
+        "code": "960189",
+        "created_at": "2026-03-17T14:04:28.974Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 18,
+    "fields": {
+        "user": [
+            "maderavegasantiago17@gmail.com"
+        ],
+        "code": "279912",
+        "created_at": "2026-03-17T14:13:10.704Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 19,
+    "fields": {
+        "user": [
+            "pabonjuanjose6@gmail.com"
+        ],
+        "code": "871487",
+        "created_at": "2026-03-23T00:31:54.818Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 20,
+    "fields": {
+        "user": [
+            "pabonjuanjose6@gmail.com"
+        ],
+        "code": "299257",
+        "created_at": "2026-03-23T00:32:21.709Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 21,
+    "fields": {
+        "user": [
+            "pabonjuanjose6@gmail.com"
+        ],
+        "code": "703618",
+        "created_at": "2026-03-23T00:35:00.706Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 22,
+    "fields": {
+        "user": [
+            "pabonjuanjose6@gmail.com"
+        ],
+        "code": "342669",
+        "created_at": "2026-03-23T00:36:15.125Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 23,
+    "fields": {
+        "user": [
+            "pabonjuanjose6@gmail.com"
+        ],
+        "code": "346656",
+        "created_at": "2026-03-23T00:40:46.577Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 24,
+    "fields": {
+        "user": [
+            "pabonjuanjose6@gmail.com"
+        ],
+        "code": "291910",
+        "created_at": "2026-03-23T00:42:33.887Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 25,
+    "fields": {
+        "user": [
+            "pabonjuanjose6@gmail.com"
+        ],
+        "code": "515405",
+        "created_at": "2026-03-23T00:43:20.138Z",
+        "is_used": true
+    }
+},
+{
+    "model": "Users.passwordresetotp",
+    "pk": 26,
+    "fields": {
+        "user": [
+            "pabonjuanjose6@gmail.com"
+        ],
+        "code": "649475",
+        "created_at": "2026-03-23T00:48:41.093Z",
+        "is_used": false
+    }
+},
+{
+    "model": "Users.typesdoc",
+    "pk": 1,
+    "fields": {
+        "name": "CC "
+    }
+},
+{
+    "model": "Users.typesdoc",
+    "pk": 2,
+    "fields": {
+        "name": "NIT"
+    }
+},
+{
+    "model": "Users.typesdoc",
+    "pk": 3,
+    "fields": {
+        "name": "TI "
+    }
+},
+{
+    "model": "Users.clients",
+    "pk": 1,
+    "fields": {
+        "name": "juan jose",
+        "type_doc": 1,
+        "doc": "1033259234",
+        "phone": "3147854500",
+        "address": "cra88A#18c26",
+        "email": "pabonjuanjose6@gmail.com",
+        "state": true,
+        "city": "MedellÝn",
+        "user": [
+            "pabonjuanjose6@gmail.com"
+        ]
+    }
+},
+{
+    "model": "Providers.providers",
+    "pk": 1,
+    "fields": {
+        "name": "Distribuidora textil",
+        "type_doc": 2,
+        "number_doc": "25467891033",
+        "contact_name": "juan jose",
+        "phone": "3147854500",
+        "address": "cra88A#18c26",
+        "email": "Distextil@gmail.com",
+        "is_active": true,
+        "published": false,
+        "created_at": "2026-03-02T23:35:42.778Z",
+        "updated_at": "2026-05-06T13:50:30.944Z"
+    }
+},
+{
+    "model": "Providers.providers",
+    "pk": 8,
+    "fields": {
+        "name": "sdbdfgsdds",
+        "type_doc": 2,
+        "number_doc": "213453214233",
+        "contact_name": "rewrsgdhfnfhgs",
+        "phone": "3454421324",
+        "address": "clle 32-34D",
+        "email": "proveedor@gmail.com",
+        "is_active": true,
+        "published": false,
+        "created_at": "2026-03-11T12:28:56.788Z",
+        "updated_at": "2026-05-06T13:53:22.571Z"
+    }
+},
+{
+    "model": "Providers.providers",
+    "pk": 9,
+    "fields": {
+        "name": "Marcela",
+        "type_doc": 1,
+        "number_doc": "1017259943",
+        "contact_name": "Marcela",
+        "phone": "3017239960",
+        "address": "CR 76 # 91 A - 108",
+        "email": "marcela@gmail.com",
+        "is_active": true,
+        "published": false,
+        "created_at": "2026-05-06T13:51:48.674Z",
+        "updated_at": "2026-05-06T13:52:22.842Z"
+    }
+},
+{
+    "model": "Providers.providers",
+    "pk": 10,
+    "fields": {
+        "name": "textiles",
+        "type_doc": 2,
+        "number_doc": "900145662",
+        "contact_name": "Carlos",
+        "phone": "3017239960",
+        "address": "CR 76 # 91 A - 10",
+        "email": "carlos@gmail.com",
+        "is_active": true,
+        "published": false,
+        "created_at": "2026-05-06T13:53:54.459Z",
+        "updated_at": "2026-05-06T13:53:54.459Z"
+    }
+},
+{
+    "model": "Categories.categories",
+    "pk": 1,
+    "fields": {
+        "name": "Enterizos",
+        "description": "vestidos enterizos",
+        "is_active": true
+    }
+},
+{
+    "model": "Categories.categories",
+    "pk": 2,
+    "fields": {
+        "name": "vestidos largos",
+        "description": "vestidos largos",
+        "is_active": true
+    }
+},
+{
+    "model": "Categories.categories",
+    "pk": 4,
+    "fields": {
+        "name": "Set",
+        "description": "Ideal para un look fresco y ligero.",
+        "is_active": true
+    }
+},
+{
+    "model": "Categories.categories",
+    "pk": 6,
+    "fields": {
+        "name": "Vestidos Cortos",
+        "description": "Casuales y para toda ocasi¾n.",
+        "is_active": true
+    }
+},
+{
+    "model": "Categories.categories",
+    "pk": 8,
+    "fields": {
+        "name": "Panty",
+        "description": "ropa interior",
+        "is_active": false
+    }
+},
+{
+    "model": "Products.products",
+    "pk": 4,
+    "fields": {
+        "name": "vestido largo",
+        "category": 2,
+        "price": "75000.00",
+        "purchase_price": "70000.00",
+        "is_active": true
+    }
+},
+{
+    "model": "Products.products",
+    "pk": 5,
+    "fields": {
+        "name": "tfuygutyrt",
+        "category": 1,
+        "price": "65000.00",
+        "purchase_price": "50000.00",
+        "is_active": true
+    }
+},
+{
+    "model": "Products.products",
+    "pk": 18,
+    "fields": {
+        "name": "Panty",
+        "category": 8,
+        "price": "20000.00",
+        "purchase_price": "10000.00",
+        "is_active": true
+    }
+},
+{
+    "model": "Products.products",
+    "pk": 19,
+    "fields": {
+        "name": "ente",
+        "category": 1,
+        "price": "50000.00",
+        "purchase_price": "30000.00",
+        "is_active": true
+    }
+},
+{
+    "model": "Products.products",
+    "pk": 33,
+    "fields": {
+        "name": "irene",
+        "category": 1,
+        "price": "60000.00",
+        "purchase_price": "40000.00",
+        "is_active": true
+    }
+},
+{
+    "model": "Products.colors",
+    "pk": 1,
+    "fields": {
+        "name": "azul"
+    }
+},
+{
+    "model": "Products.sizes",
+    "pk": 1,
+    "fields": {
+        "name": "S"
+    }
+},
+{
+    "model": "Products.variantproduct",
+    "pk": 4,
+    "fields": {
+        "product": 4,
+        "size": 1,
+        "color": 1,
+        "sku": "VES-S-AZU-902"
+    }
+},
+{
+    "model": "Products.variantproduct",
+    "pk": 5,
+    "fields": {
+        "product": 5,
+        "size": 1,
+        "color": 1,
+        "sku": "TFU-S-AZU-828"
+    }
+},
+{
+    "model": "Products.variantproduct",
+    "pk": 8,
+    "fields": {
+        "product": 33,
+        "size": 1,
+        "color": 1,
+        "sku": "IRE-S-AZU-966322"
+    }
+},
+{
+    "model": "Orders.paymentmethods",
+    "pk": 1,
+    "fields": {
+        "name": "Efectivo"
+    }
+},
+{
+    "model": "Orders.paymentmethods",
+    "pk": 2,
+    "fields": {
+        "name": "Transferencia"
+    }
+},
+{
+    "model": "Orders.paymentmethods",
+    "pk": 3,
+    "fields": {
+        "name": "Tarjeta"
+    }
+},
+{
+    "model": "Orders.paymentmethods",
+    "pk": 4,
+    "fields": {
+        "name": "Nequi"
+    }
+},
+{
+    "model": "Orders.paymentmethods",
+    "pk": 5,
+    "fields": {
+        "name": "Daviplata"
+    }
+},
+{
+    "model": "Orders.orders",
+    "pk": 2,
+    "fields": {
+        "number_order": "PED-61599889",
+        "client": 1,
+        "order_date": "2026-05-06T13:58:42.540Z",
+        "payment_method": 1,
+        "address_shipment": "waegsrhetr",
+        "person_receives": "waegrhty",
+        "subtotal": "65000.00",
+        "iva": "12350.00",
+        "total": "77350.00",
+        "observations": "",
+        "state": 1
+    }
+},
+{
+    "model": "Orders.orders",
+    "pk": 3,
+    "fields": {
+        "number_order": "PED-34419779",
+        "client": 1,
+        "order_date": "2026-05-06T13:59:20.984Z",
+        "payment_method": 1,
+        "address_shipment": "weaegrh",
+        "person_receives": "qagesrnh",
+        "subtotal": "300000.00",
+        "iva": "57000.00",
+        "total": "357000.00",
+        "observations": "",
+        "state": 1
+    }
+},
+{
+    "model": "Orders.ordersdetail",
+    "pk": 1,
+    "fields": {
+        "order": 2,
+        "variant": 5,
+        "quantity": 1,
+        "sales_price": "65000.00",
+        "subtotal": "65000.00"
+    }
+},
+{
+    "model": "Orders.ordersdetail",
+    "pk": 2,
+    "fields": {
+        "order": 3,
+        "variant": 4,
+        "quantity": 4,
+        "sales_price": "75000.00",
+        "subtotal": "300000.00"
+    }
+},
+{
+    "model": "Inventory.inventory",
+    "pk": 4,
+    "fields": {
+        "variant": 4,
+        "stock": 24,
+        "updated_at": "2026-05-06T14:12:56.504Z"
+    }
+},
+{
+    "model": "Inventory.inventory",
+    "pk": 5,
+    "fields": {
+        "variant": 5,
+        "stock": 1,
+        "updated_at": "2026-03-27T12:50:58.489Z"
+    }
+},
+{
+    "model": "Inventory.inventory",
+    "pk": 8,
+    "fields": {
+        "variant": 8,
+        "stock": 4,
+        "updated_at": "2026-05-23T21:49:32.705Z"
+    }
+},
+{
+    "model": "Purchases.purchases",
+    "pk": 4,
+    "fields": {
+        "purchase_number": "ORD-06730189",
+        "provider": 1,
+        "state": 1,
+        "subtotal": "1250000.00",
+        "iva": "237500.00",
+        "total": "1487500.00",
+        "purchase_date": "2026-03-27T12:50:58.461Z",
+        "registration_date": "2026-05-06",
+        "observations": null,
+        "image": null
+    }
+},
+{
+    "model": "Purchases.purchases",
+    "pk": 5,
+    "fields": {
+        "purchase_number": "ORD-73081445",
+        "provider": 1,
+        "state": 1,
+        "subtotal": "300000.00",
+        "iva": "57000.00",
+        "total": "357000.00",
+        "purchase_date": "2026-04-15T20:46:49.155Z",
+        "registration_date": "2026-05-06",
+        "observations": null,
+        "image": null
+    }
+},
+{
+    "model": "Purchases.purchasedetail",
+    "pk": 5,
+    "fields": {
+        "purchase": 4,
+        "variant": 5,
+        "quantity": 1,
+        "purchase_price": "50000.00",
+        "sales_price": "65000.00",
+        "subtotal": "50000.00"
+    }
+},
+{
+    "model": "Purchases.purchasedetail",
+    "pk": 6,
+    "fields": {
+        "purchase": 4,
+        "variant": 4,
+        "quantity": 24,
+        "purchase_price": "50000.00",
+        "sales_price": "75000.00",
+        "subtotal": "1200000.00"
+    }
+},
+{
+    "model": "Purchases.purchasedetail",
+    "pk": 7,
+    "fields": {
+        "purchase": 5,
+        "variant": 4,
+        "quantity": 5,
+        "purchase_price": "60000.00",
+        "sales_price": "75000.00",
+        "subtotal": "300000.00"
+    }
+},
+{
+    "model": "States.states",
+    "pk": 1,
+    "fields": {
+        "name_state": "Pendiente"
+    }
+},
+{
+    "model": "States.states",
+    "pk": 2,
+    "fields": {
+        "name_state": "Entregado"
+    }
+},
+{
+    "model": "States.states",
+    "pk": 3,
+    "fields": {
+        "name_state": "Cancelado"
+    }
+},
+{
+    "model": "States.states",
+    "pk": 4,
+    "fields": {
+        "name_state": "Anulado"
+    }
+},
+{
+    "model": "Sales.sales",
+    "pk": 1,
+    "fields": {
+        "number_sale": "VEN-62795825",
+        "client": 1,
+        "date_sale": "2026-05-06T14:12:56.470Z",
+        "state": 1,
+        "payment_method": 1,
+        "subtotal": "375000.00",
+        "iva": "71250.00",
+        "total": "446250.00",
+        "output_executing": false,
+        "return_executing": false,
+        "void": false,
+        "void_reason": null
+    }
+},
+{
+    "model": "Sales.salesdetail",
+    "pk": 1,
+    "fields": {
+        "sale": 1,
+        "variant": 4,
+        "quantity": 5,
+        "unit_price": "75000.00",
+        "subtotal": "375000.00",
+        "creation_date": "2026-05-06T14:12:56.489Z"
+    }
+}
+]
