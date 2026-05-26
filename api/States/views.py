@@ -8,7 +8,7 @@ from .serializers import StatesSerializers
 
 class StatesViewSets(viewsets.GenericViewSet):
     queryset = States.objects.all()
-    required_module = 'States'
+    required_module = 'Estados'
     serializer_class = StatesSerializers
 
     @action(detail=False,methods=['GET'])

@@ -5,6 +5,9 @@ from api.Roles.models import RolPermission
 from django.core.mail import send_mail
 from django.conf import settings
 import random
+from .models import Clients
+from django.db import transaction
+from api.Roles.models import Roles
 
 class ChangePasswordSerializer(serializers.Serializer):
     current_password = serializers.CharField(write_only=True)
@@ -222,3 +225,79 @@ class TypesDocsSerializers(serializers.ModelSerializer):
         extra_kwargs = {
             'id_doc':{'read_only':True}
         }
+
+class ClientsSerializers(serializers.ModelSerializer):
+    users = UsersSerializer(many=True, source='users_client')
+    class Meta:
+        model = Clients
+        fields = '__all__'
+        extra_kwargs = {
+            'id_client':{'read_only':True}
+        }
+
+class ClientsUnifiedSerializer(serializers.ModelSerializer):
+    # Campos virtuales write_only que el formulario del front enviará para crear el User
+    email = serializers.EmailField(write_only=True)
+    password = serializers.CharField(write_only=True, required=False, default="123456")
+    doc_identity = serializers.CharField(write_only=True)
+    
+    class Meta:
+        model = Clients
+        fields = [
+            # 'id_client', 'name', 'type_doc', 'doc', 'phone', 
+            # 'address', 'email', 'state', 'city', 
+            # 'password', 'doc_identity'
+            '__all__'
+        ]
+        extra_kwargs = {
+            'id_client': {'read_only': True},
+            'user':{'read_only':True}
+        }
+
+    def create(self, validated_data):
+        # Extraemos la data exclusiva de la tabla de Usuarios
+        email = validated_data.pop('email')
+        password = validated_data.pop('password')
+        doc_identity = validated_data.pop('doc_identity')
+        
+        # Mantenemos los datos comunes o propios de Clientes
+        name = validated_data.get('name')
+        phone = validated_data.get('phone')
+        address = validated_data.get('address')
+        type_doc_instance = validated_data.get('type_doc')
+
+        # Bloque atómico: si algo falla aquí adentro, se cancela todo en cascada
+        with transaction.atomic():
+            # Buscamos de forma segura el rol 'cliente' en el sistema
+            try:
+                rol_cliente = Roles.objects.get(name__icontains='cliente')
+            except Roles.DoesNotExist:
+                # Si por alguna razón cambiaron los nombres en BD, usamos el ID por defecto para clientes (ej: 2)
+                rol_cliente = Roles.objects.get(id=2) 
+
+            # Creamos la instancia en la tabla de Usuarios usando la lógica de password hashing
+            user_instance = Users.objects.create(
+                email=email,
+                name=name,
+                type_doc=type_doc_instance,
+                doc_identity=doc_identity,
+                phone=phone,
+                address=address,
+                id_rol=rol_cliente
+            )
+            user_instance.set_password(password)
+            user_instance.save()
+
+            # Creamos el Cliente vinculándolo al usuario recién creado y forzando saldo en 0
+            client_instance = Clients.objects.create(
+                user=user_instance,
+                saldo_a_favor=0.00,
+                **validated_data
+            )
+
+            return client_instance
+
+class StateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Clients
+        fields = ['state']

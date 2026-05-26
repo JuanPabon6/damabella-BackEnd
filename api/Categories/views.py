@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework import viewsets,status,filters
+from rest_framework import viewsets,status,filters, permissions
 from rest_framework.response import Response
 from rest_framework.exceptions import APIException,ValidationError
 from rest_framework.decorators import action
@@ -8,13 +8,14 @@ from django.core.exceptions import MultipleObjectsReturned
 from .models import Categories
 from .serializers import CategoriesSerializers, PatchStateCategoriesSerializers
 from api.Exceptions.exceptions import ObjectNotExists,MultiResults, IntegrityException, InvalidData
+from api.Products.models import Products
 
 class CategoriesViewSets(viewsets.GenericViewSet):
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializers
-    # permission_classes = []
+    permission_classes = [permissions.AllowAny]
     # authentication_classes = []
-    required_module = 'Categories'
+    required_module = 'Categorias'
     filter_backends = [filters.SearchFilter]
     fields_search = ['id_category','name','description','is_active']
 
@@ -114,5 +115,14 @@ class CategoriesViewSets(viewsets.GenericViewSet):
             return Response({'message':'error de llaves', 'results':[], 'success':False}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as ex:
             return Response({'error':str(ex), 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)   
+
+    @action(detail=True,methods=['GET'])
+    def get_products_by_category(self, request, pk=None):
+        try:
+            products = Products.objects.filter(category=pk)
+            serializer = self.get_serializer(products, many=True)
+            return Response({'message':'productos obtenidos','results':serializer.data,'success':True}, status=status.HTTP_200_OK)
+        except Exception as ex:
+            return Response({'error':str(ex),'success':False},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         # Create your views here.

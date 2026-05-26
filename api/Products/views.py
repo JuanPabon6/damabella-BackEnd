@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework.response import Response
-from rest_framework import status, viewsets, filters
+from rest_framework import status, viewsets, filters, permissions
 from rest_framework.decorators import action
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.utils import IntegrityError
@@ -17,8 +17,8 @@ class ProductsViewSets(viewsets.GenericViewSet):
     queryset = Products.objects.all()
     serializer_class = ProductsSerializer
     # authentication_classes = []
-    # permission_classes = []
-    required_module = 'Products'
+    permission_classes = [permissions.AllowAny]
+    required_module = 'Productos'
     filter_backends = [filters.SearchFilter]
     search_fields = ['id_product','name','category','price','is_active']
 
@@ -53,6 +53,10 @@ class ProductsViewSets(viewsets.GenericViewSet):
     @transaction.atomic
     def create_products(self, request):
         try:
+<<<<<<< HEAD
+=======
+            print(f'data enviada: {request.data}')
+>>>>>>> juanjo
             data_product = request.data
             serializer_product = self.get_serializer(data=data_product)
             serializer_product.is_valid(raise_exception=True)
@@ -149,8 +153,13 @@ class ProductsViewSets(viewsets.GenericViewSet):
 class ColorViewSets(viewsets.GenericViewSet):
     queryset = Colors.objects.all()
     serializer_class = ColorsSerializer
+<<<<<<< HEAD
     required_module = 'Products'
     # permission_classes = []
+=======
+    required_module = 'Productos'
+    permission_classes = [permissions.AllowAny]
+>>>>>>> juanjo
     # authentication_classes = []
 
     @action(detail=False,methods=['GET'])
@@ -218,8 +227,13 @@ class ColorViewSets(viewsets.GenericViewSet):
 class SizesViewSets(viewsets.GenericViewSet):
     queryset = Sizes.objects.all()
     serializer_class = SizesSerializer
+<<<<<<< HEAD
     requires_module = 'Products'
     # permission_classes = []
+=======
+    required_module = 'Productos'
+    permission_classes = [permissions.AllowAny]
+>>>>>>> juanjo
     # authentication_classes = []
 
     @action(detail=False,methods=['GET'])
@@ -287,7 +301,7 @@ class SizesViewSets(viewsets.GenericViewSet):
 class ProductPhotosViewSets(viewsets.GenericViewSet):
     queryset = ProductPhoto.objects.all()
     serializer_class = ProductsPhotosSerializer
-    # permission_classes = []
+    permission_classes = [permissions.AllowAny]
     # authentication_classes = []
 
     @action(detail=False,methods=['GET'])
@@ -340,8 +354,13 @@ class ProductPhotosViewSets(viewsets.GenericViewSet):
 class VariantProductViewSets(viewsets.GenericViewSet):
     queryset = VariantProduct.objects.all()
     serializer_class = VariantProductsSerializer    
+<<<<<<< HEAD
     required_module = 'Products'
     # permission_classes = []
+=======
+    required_module = 'Productos'
+    permission_classes = [permissions.AllowAny]
+>>>>>>> juanjo
     # authentication_classes = []
 
     @action(detail=False,methods=['GET'])

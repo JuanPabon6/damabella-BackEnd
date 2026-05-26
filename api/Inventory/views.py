@@ -26,7 +26,7 @@ class InventoryViewSets(viewsets.GenericViewSet):
         return Response({'message':'inventarios obtenidos', 'results':serializer.data, 'success':True}, status=status.HTTP_200_OK)
 
     @action(detail=True,methods=['GET'])
-    def get_Inventory_by_id(self, request, pk=None):
+    def get_inventory_by_id(self, request, pk=None):
         try:
             inventory = self.get_object()
             serializer = self.get_serializer(inventory,many=False)

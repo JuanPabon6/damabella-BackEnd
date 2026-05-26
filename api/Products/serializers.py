@@ -67,5 +67,6 @@ class VariantProductsSerializer(serializers.ModelSerializer):
         model = VariantProduct
         fields = '__all__'
         extra_kwargs = {
-            'id_variant':{'read_only':True}
+            'id_variant':{'read_only':True},
+            'product':{'read_only':True}
         }

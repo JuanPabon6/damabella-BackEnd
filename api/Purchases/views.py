@@ -13,7 +13,7 @@ from .services import Export_purchases_list
 class PurchasesViewSet(viewsets.GenericViewSet):
     queryset = Purchases.objects.all()
     serializer_class = PurchasesSerializer
-    required_module = 'Purchases'
+    required_module = 'Compras'
     filter_backends = [filters.SearchFilter]
     search_fields = [
         'purchase_number',
@@ -157,7 +157,7 @@ class PurchasesViewSet(viewsets.GenericViewSet):
 class PurchaseDetailViewSet(viewsets.GenericViewSet):
     queryset = PurchaseDetail.objects.all()
     serializer_class = PurchaseDetailSerializer
-    required_module = 'Purchases'
+    required_module = 'Compras'
     filter_backends = [filters.SearchFilter]
     search_fields = [
         'purchase__purchase_number',

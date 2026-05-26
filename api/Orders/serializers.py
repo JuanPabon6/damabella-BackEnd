@@ -1,5 +1,9 @@
 from rest_framework import serializers
+<<<<<<< HEAD
 from .models import Orders,OrdersDetail
+=======
+from .models import Orders,OrdersDetail, PaymentMethods
+>>>>>>> juanjo
 from django.db import transaction
 from decimal import Decimal
 
@@ -31,7 +35,11 @@ class OrdersSerializers(serializers.ModelSerializer):
         for detail in details_data:
             variant  = detail['variant']
             quantity = detail['quantity']
+<<<<<<< HEAD
             sales_price = variant.price  
+=======
+            sales_price = variant.product.price  
+>>>>>>> juanjo
             subtotal_detail = Decimal(str(sales_price)) * quantity
 
             OrdersDetail.objects.create(
@@ -59,4 +67,13 @@ class OrdersSerializers(serializers.ModelSerializer):
             'subtotal':    {'read_only': True},
             'iva':         {'read_only': True},
             'total':       {'read_only': True},
+<<<<<<< HEAD
         }
+=======
+        }
+
+class PaymentMethodsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentMethods
+        fields = '__all__'
+>>>>>>> juanjo

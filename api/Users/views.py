@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework import filters,status,viewsets, views, permissions
 from rest_framework.response import Response
-from .models import Users, Typesdoc
-from .serializers import UsersSerializer, UsersPatchActiveSerializer, TypesDocsSerializers,LoginSerializer, ChangePasswordSerializer, RequestOTPSerializer,ValidateOTPSerializer, ResetPasswordSerializer
+from .models import Users, Typesdoc, Clients
+from .serializers import UsersSerializer, UsersPatchActiveSerializer, TypesDocsSerializers,LoginSerializer, ChangePasswordSerializer, RequestOTPSerializer,ValidateOTPSerializer, ResetPasswordSerializer, ClientsSerializers, StateSerializer
 from rest_framework.decorators import action
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.utils import IntegrityError
@@ -13,6 +13,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.core.mail import send_mail
+from django.db import transaction
 
 
 class ChangePasswordView(views.APIView):
@@ -113,7 +114,7 @@ class UsersViewSets(viewsets.GenericViewSet):
     serializer_class = UsersSerializer
     # permission_classes = []
     # authentication_classes = []
-    required_module = 'Users'
+    required_module = 'Usuarios'
     filter_backends = [filters.SearchFilter]
     search_fields = ['doc_identity','name','email','phone','address','id_rol__name']
 
@@ -145,13 +146,19 @@ class UsersViewSets(viewsets.GenericViewSet):
             raise APIException(detail=str(ex),code="error de servidor")
         
     @action(detail=False, methods=['POST'], permission_classes=[permissions.AllowAny])
+    @transaction.atomic()    
     def create_users(self, request):
         try:
-            data = request.data
-            serializer = self.get_serializer(data=data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response({'results':'creado exitosamente','object':serializer.data, 'success':True}, status=status.HTTP_201_CREATED)
+            data_user = request.data
+            user_serializer = UsersSerializer(data=data_user)
+            user_serializer.is_valid(raise_exception=True)
+            user_instance = user_serializer.save()
+
+            data_client = request.data
+            client_serializer = ClientsSerializers(data=data_client)
+            client_serializer.is_valid(raise_exception=True)
+            client_instance = client_serializer.save(user=user_instance)
+            return Response({'results':'creado exitosamente','user':user_instance.data,'client':client_instance, 'success':True}, status=status.HTTP_201_CREATED)
         except IntegrityError:
             raise IntegrityException()
         except MultipleObjectsReturned:
@@ -298,6 +305,96 @@ class TypesDocsViewSets(viewsets.GenericViewSet):
             return Response({'message':'este tipo no fue encontrado','success':False}, status=status.HTTP_404_NOT_FOUND)
         except Exception as ex:
             return Response({'error':str(ex), 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class ClientsViewSets(viewsets.GenericViewSet):
+    queryset = Clients.objects.all()
+    serializer_class = ClientsSerializers
+    # permission_classes = []
+    # authentication_classes = []
+    required_module = 'Clientes'
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['id_client','name','type_doc','doc','phone','address','email','state','city']
+
+    def get_serializer_class(self):
+        if self.action == 'patch_state':
+            return StateSerializer
+        return ClientsSerializers
+    
+    # @action(detail=False,methods=['GET'])
+    # def get_clients(self, request):
+    #     print('AUTH HEADER:', request.headers.get('Authorization'))
+    #     print('USER:', request.user)
+    #     clients = self.get_queryset()
+    #     serializer = self.get_serializer(clients,many=True)
+    #     return Response({'message':'clientes obtenidos','results':serializer.data,'success':True}, status=status.HTTP_200_OK)
+    
+    @action(detail=True,methods=['GET'])
+    def get_clients_by_id(self,request, pk=None):
+        try:
+            client = self.get_object()
+            serializer = self.get_serializer(client,many=False)
+            return Response({'message':'cliente obtenido', 'results':serializer.data,'success':True}, status=status.HTTP_200_OK)
+        except MultipleObjectsReturned:
+            return Response({'message':'multiples objetos retornados','success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    @action(detail=True,methods=['DELETE'])
+    def delete_clients(self,request, pk=None):
+        try:
+            client = self.get_object()
+            client.delete()
+            return Response({'message':'eliminado exitosamente','success':True}, status=status.HTTP_200_OK)
+        except MultipleObjectsReturned:
+            return Response({'message':'multiples objetos retornados','success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=True,methods=['PUT'])
+    def update_clients(self, request, pk=None):
+        try:
+            client = self.get_object()
+            serializer = self.get_serializer(client, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response({'message':'cliente actualizado exitosamente', 'client':serializer.data, 'success':True}, status=status.HTTP_200_OK)
+        except MultipleObjectsReturned:
+            return Response({'message':'multiples objetos retornados','success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    @action(detail=True,methods=['PATCH'])
+    def patch_state(self, request, pk=None):
+        try:
+            client = self.get_object()
+            serializer = self.get_serializer(client, data=request.data,partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response({'message':'estado actualizado exitosamente','object':serializer.data,'success':True}, status=status.HTTP_200_OK)
+        except MultipleObjectsReturned:
+            return Response({'message':'multiples objetos retornados', 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    @action(detail=False,methods=['GET'])
+    def search_clients(self, request):
+        queryset = self.get_queryset()
+        instance = self.filter_queryset(queryset=queryset)
+        serializer = self.get_serializer(instance,many=True)
+        return Response({'message':'clientes encontrados', 'results':serializer.data, 'success':True}, status=status.HTTP_200_OK)
+    
+    @action(detail=False,methods=['GET'])
+    def get_clients_by_rol(self, request, pk=None):
+        try:
+            rol = ['cliente','Cliente','Clientes','Cliente']
+            users = Users.objects.filter(id_rol__name__icontains='clientes')
+            if users.exists():
+                serializer = UsersSerializer(users, many=True)
+                return Response({'message':'clientes obtenidos','results':serializer.data,'success':True}, status=status.HTTP_200_OK)
+            else:
+                print(f'clientes : {users}')
+                print(f'data: {serializer.data}')
+                return Response({'message':'no se encontraron clientes','success':False}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as ex:
+            print(f'error: {ex}')
+            return Response({'message':str(ex), 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        
+
+# Create your views here.
+
         
          
 

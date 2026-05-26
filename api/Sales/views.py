@@ -17,6 +17,7 @@ class SalesViewSets(viewsets.GenericViewSet):
     queryset = Sales.objects.all()
     serializer_class = SalesSerializer
     filter_backends = [filters.SearchFilter]
+    required_module = 'Ventas'
     search_fields = ['id_sale','number_sale','client','date_sale','state','payment_method','subtotal','iva',
     'total','output_executing','return_executing','void','void_reason']
 
@@ -153,6 +154,7 @@ class SalesDetailViewsets(viewsets.ModelViewSet):
     queryset = SalesDetail.objects.all()
     serializer_class = SalesDetailsSerializer
     filter_backends = [filters.SearchFilter]
+    required_module = 'Ventas'
     search_fields = ['sale' , 'variant' ,'quantity' ,'unit_price' ,'subtotal' ,'creation_date',]
 
     @action(detail=True,methods=['GET'])
