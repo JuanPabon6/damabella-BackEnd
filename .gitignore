@@ -1,2 +1,4 @@
 .env
 copia_seguridad.json
+**/__pycache__/
+*.pyc
