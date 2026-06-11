@@ -227,7 +227,7 @@ class TypesDocsSerializers(serializers.ModelSerializer):
         }
 
 class ClientsSerializers(serializers.ModelSerializer):
-    users = UsersSerializer(many=True, source='users_client')
+    # users = UsersSerializer(many=True, source='users_client')
     class Meta:
         model = Clients
         fields = '__all__'

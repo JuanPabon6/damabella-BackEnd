@@ -13,9 +13,12 @@ from api.Users.models import Users
 from api.Users.serializers import UsersSerializer
 from api.Sales.models import Sales, SalesDetail
 from api.Sales.serializers import SalesSerializer, SalesDetailsSerializer
+from api.Returns.models import Returns
 from django.utils import timezone
 from django.db.models import Sum, Count
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 
 class DashboardViewSets(viewsets.GenericViewSet):
@@ -122,6 +125,22 @@ class DashboardViewSets(viewsets.GenericViewSet):
         except Exception as ex:
             print(ex)
             return Response({'success': False, 'error': str(ex)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'])
+    def get_metrics(self, request):
+        try:
+            cantidad_devoluciones = Returns.objects.count()
+            logger.info(f'métricas de devoluciones obtenidas')
+            return Response({
+                'message': 'métricas de devoluciones',
+                'metrics': {
+                    'cantidad_devoluciones': cantidad_devoluciones
+                },
+                'success': True
+            }, status=status.HTTP_200_OK)
+        except Exception as ex:
+            logger.critical(f'error al obtener métricas: {ex}')
+            return Response({'message': str(ex), 'success': False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 

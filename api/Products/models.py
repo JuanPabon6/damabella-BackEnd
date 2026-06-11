@@ -7,6 +7,7 @@ class Products(models.Model):
     category = models.ForeignKey(Categories, on_delete=models.CASCADE, related_name='products', default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
+    iva = models.ForeignKey('Purchases.Iva', on_delete=models.CASCADE, related_name='iva_product', default=1)
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -27,14 +28,14 @@ class Products(models.Model):
 
 class Colors(models.Model):
     id_color = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=75)
+    name = models.CharField(max_length=75, unique=True)
 
     class Meta:
         db_table = 'Colors'
 
 class Sizes(models.Model):
     id_size = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=75)
+    name = models.CharField(max_length=75, unique=True)
 
     class Meta:
         db_table = 'Sizes'
@@ -53,6 +54,7 @@ class VariantProduct(models.Model):
 class ProductPhoto(models.Model):
     id =models.AutoField(primary_key=True)
     producto = models.ForeignKey(Products, on_delete=models.CASCADE, related_name='photos')
+    variant = models.ForeignKey(VariantProduct, on_delete=models.CASCADE, related_name='variant_photo', default=0, null=True, blank=True)
     image = models.ImageField(upload_to='products/photos/')
 
     class Meta:

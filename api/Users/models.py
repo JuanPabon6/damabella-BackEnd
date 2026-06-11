@@ -66,7 +66,7 @@ class Clients(models.Model):
     email = models.EmailField(max_length=120)
     state = models.BooleanField(default=True)
     city = models.CharField(max_length=100)
-    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='users_client', to_field='id_user',db_column='user_id', default=1)
+    # user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='users_client', to_field='id_user',db_column='user_id', default=1)
 
     class Meta:
         db_table = 'Clients'

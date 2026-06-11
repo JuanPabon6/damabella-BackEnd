@@ -3,6 +3,7 @@ from .models import Products, Sizes, Colors, ProductPhoto, VariantProduct
 
 class ProductsSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
+    
 
     def validate_price(self, value):
         if value <= 0:
@@ -67,6 +68,5 @@ class VariantProductsSerializer(serializers.ModelSerializer):
         model = VariantProduct
         fields = '__all__'
         extra_kwargs = {
-            'id_variant':{'read_only':True},
-            'product':{'read_only':True}
+            'id_variant':{'read_only':True},    
         }

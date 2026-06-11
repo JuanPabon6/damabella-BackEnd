@@ -8,7 +8,7 @@ from api.Products.models import VariantProduct
 def generar_numero_devolucion():
     while True:
         number = 'DEV-'+''.join(random.choices(string.digits, k=8))
-        if not Returns.objects.filter(purchase_number=number).exists():
+        if not Returns.objects.filter(return_number=number).exists():
             return number
         
 class Returns(models.Model):

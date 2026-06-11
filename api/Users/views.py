@@ -149,16 +149,12 @@ class UsersViewSets(viewsets.GenericViewSet):
     @transaction.atomic()    
     def create_users(self, request):
         try:
-            data_user = request.data
-            user_serializer = UsersSerializer(data=data_user)
-            user_serializer.is_valid(raise_exception=True)
-            user_instance = user_serializer.save()
+            data = request.data
+            serializer = self.get_serializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
 
-            data_client = request.data
-            client_serializer = ClientsSerializers(data=data_client)
-            client_serializer.is_valid(raise_exception=True)
-            client_instance = client_serializer.save(user=user_instance)
-            return Response({'results':'creado exitosamente','user':user_instance.data,'client':client_instance, 'success':True}, status=status.HTTP_201_CREATED)
+            return Response({'results':'creado exitosamente','user':serializer.data,'success':True}, status=status.HTTP_201_CREATED)
         except IntegrityError:
             raise IntegrityException()
         except MultipleObjectsReturned:
@@ -309,7 +305,7 @@ class TypesDocsViewSets(viewsets.GenericViewSet):
 class ClientsViewSets(viewsets.GenericViewSet):
     queryset = Clients.objects.all()
     serializer_class = ClientsSerializers
-    # permission_classes = []
+    permission_classes = [permissions.IsAuthenticated]
     # authentication_classes = []
     required_module = 'Clientes'
     filter_backends = [filters.SearchFilter]
@@ -320,13 +316,13 @@ class ClientsViewSets(viewsets.GenericViewSet):
             return StateSerializer
         return ClientsSerializers
     
-    # @action(detail=False,methods=['GET'])
-    # def get_clients(self, request):
-    #     print('AUTH HEADER:', request.headers.get('Authorization'))
-    #     print('USER:', request.user)
-    #     clients = self.get_queryset()
-    #     serializer = self.get_serializer(clients,many=True)
-    #     return Response({'message':'clientes obtenidos','results':serializer.data,'success':True}, status=status.HTTP_200_OK)
+    @action(detail=False,methods=['GET'])
+    def get_clients(self, request):
+        # print('AUTH HEADER:', request.headers.get('Authorization'))
+        print('USER:', request.user)
+        clients = self.get_queryset()
+        serializer = self.get_serializer(clients,many=True)
+        return Response({'message':'clientes obtenidos','results':serializer.data,'success':True}, status=status.HTTP_200_OK)
     
     @action(detail=True,methods=['GET'])
     def get_clients_by_id(self,request, pk=None):
@@ -337,6 +333,18 @@ class ClientsViewSets(viewsets.GenericViewSet):
         except MultipleObjectsReturned:
             return Response({'message':'multiples objetos retornados','success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
+    @action(detail=False,methods=['POST'])
+    def create_clients(self, request):
+        try:
+            data_client = request.data
+            client_serializer = self.get_serializer(data=data_client)
+            client_serializer.is_valid(raise_exception=True)
+            client_instance = client_serializer.save(user=request.user)
+            return Response({'message':'creado exitosamente','results':client_instance.data,'success':True}, status=status.HTTP_201_CREATED)
+        except Exception as ex:
+            return Response({'error':str(ex), 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
     @action(detail=True,methods=['DELETE'])
     def delete_clients(self,request, pk=None):
         try:
@@ -385,7 +393,6 @@ class ClientsViewSets(viewsets.GenericViewSet):
                 return Response({'message':'clientes obtenidos','results':serializer.data,'success':True}, status=status.HTTP_200_OK)
             else:
                 print(f'clientes : {users}')
-                print(f'data: {serializer.data}')
                 return Response({'message':'no se encontraron clientes','success':False}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as ex:
             print(f'error: {ex}')

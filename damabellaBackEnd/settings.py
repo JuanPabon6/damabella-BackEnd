@@ -126,11 +126,11 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
 
     'ALGORITHM': 'HS256',
-    'SINGING_KEY': config('SECRET_KEY'),
+    'SIGNING_KEY': config('SECRET_KEY'),
     'AUTH_HEADER_TYPES': ('Bearer',),
     'USER_ID_FIELD': 'id_user',
     'USER_ID_CLAIM': 'user_id',
-    'AUTH_TOKEN_CLASSSES': ('rest_framework_simplejwt.tokens.AccesToken',),
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
 }
 
 CORS_ORIGIN_WHITELIST = [
