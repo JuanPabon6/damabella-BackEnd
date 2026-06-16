@@ -21,8 +21,8 @@ class Migration(migrations.Migration):
             name='variant',
             field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='purchases_details', to='Products.variantproduct'),
         ),
-        migrations.AddConstraint(
-            model_name='purchasedetail',
-            constraint=models.CheckConstraint(condition=models.Q(('quantity__gt', 0)), name='quantity_gt_0', violation_error_code='quantity_invalid', violation_error_message='la cantidad no puede ser menor o igual a 0'),
-        ),
+        # migrations.AddConstraint(
+        #     model_name='purchasedetail',
+        #     constraint=models.CheckConstraint(condition=models.Q(('quantity__gt', 0)), name='quantity_gt_0', violation_error_code='quantity_invalid', violation_error_message='la cantidad no puede ser menor o igual a 0'),
+        # ),
     ]
