@@ -32,6 +32,7 @@ class ProductsViewSets(viewsets.GenericViewSet):
         try:
             products = self.get_queryset()
             serializer = self.get_serializer(products, many=True)
+            print(serializer.data)
             return Response({'message':'productos obtenidos', 'results':serializer.data, 'success':True}, status=status.HTTP_200_OK)
         except Exception as ex:
             return Response({'error':str(ex), 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -41,6 +42,7 @@ class ProductsViewSets(viewsets.GenericViewSet):
         try:
             product = self.get_object()
             serialzier = self.get_serializer(product, many=False)
+            print(serialzier.data)
             return Response({'message':'producto encontrado', 'results':serialzier.data, 'success':True}, status=status.HTTP_200_OK)
         except Products.DoesNotExist:
             return Response({'message':'producto no encontrada', 'results':[], 'success':False}, status=status.HTTP_404_NOT_FOUND)
@@ -62,7 +64,9 @@ class ProductsViewSets(viewsets.GenericViewSet):
             serializer_product.is_valid(raise_exception=True)
             product_instance = serializer_product.save()
 
-            data_variant = request.data
+            data_variant = request.data.copy()
+            data_variant['product'] = product_instance.id_product
+
             serializer_variant = VariantProductsSerializer(data=data_variant)
             serializer_variant.is_valid(raise_exception=True)
             variant_instance = serializer_variant.save(product=product_instance)
@@ -71,7 +75,12 @@ class ProductsViewSets(viewsets.GenericViewSet):
             
             quantity = request.data.get('stock')
 
-            add_stock(variant_instance, quantity)
+            try:
+                quantity = int(quantity)
+            except (TypeError, ValueError):
+                quantity = 0
+            if quantity > 0:
+                add_stock(variant_instance, quantity)
         
             return Response({'message':'creado exitosamente', 'product':serializer_product.data, 'variant':serializer_variant.data, 'success':True}, status=status.HTTP_201_CREATED)
         except IntegrityError:
@@ -308,9 +317,10 @@ class ProductPhotosViewSets(viewsets.GenericViewSet):
     def get_photos(self, request):
         try:
             photos = self.get_queryset()
-            serializer = self.get_serializer(photos,many=False)
+            serializer = self.get_serializer(photos,many=True)
             return Response({'message':'fotos obtenidas', 'results':serializer.data, 'success':True}, status=status.HTTP_200_OK)
         except Exception as ex:
+            print(f'error: {ex}')
             return Response({'error':str(ex), 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     @action(detail=True,methods=['GET'])
@@ -335,6 +345,7 @@ class ProductPhotosViewSets(viewsets.GenericViewSet):
         except IntegrityError:
             return Response({'message':'error de llaves', 'success':False}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as ex:
+            print(f'error: {ex}')
             return Response({'error':str(ex), 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     @action(detail=True,methods=['DELETE'])
@@ -377,6 +388,18 @@ class VariantProductViewSets(viewsets.GenericViewSet):
             return Response({'message':'variante obtenida','results':serializer.data,'success':True}, status=status.HTTP_200_OK)
         except MultipleObjectsReturned:
             return Response({'message':'multiples objetos retornados','results':[],'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['POST'])
+    def create_variant(self, request):
+        try:
+            serializer = self.get_serializer(data=request.data)
+            print(f'data a serializer: {request.data}')
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response({'message':'creado exitosamente', 'results':serializer.data,'success':True}, status=status.HTTP_201_CREATED)
+        except Exception as ex:
+            print(f'error {ex}')
+            return Response({'error':str(ex), 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     @action(detail=True,methods=['DELETE'])
     def delete_variant(self, request, pk=None):

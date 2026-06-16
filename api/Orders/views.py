@@ -6,6 +6,7 @@ from .models import Orders, OrdersDetail, PaymentMethods
 from .serializers import OrdersSerializers, OrderDetailSerializer, PaymentMethodsSerializer
 from django.db.utils import IntegrityError
 from django.core.exceptions import MultipleObjectsReturned
+from api.States.models import States
 from .services import Export_orders_list
 import logging
 
@@ -91,24 +92,58 @@ class OrdersViewSet(viewsets.GenericViewSet):
             print('error de servidor',ex)
             return Response({'message':str(ex),'success':False},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-    @action(detail=True,methods=['PATCH'])
+    @action(detail=True, methods=['PATCH'])
     def patch_state(self, request, pk=None):
         try:
             order = self.get_object()
             state_id = request.data.get('state')
+            
             if not state_id:
-              return Response({'message':'no hay estado para asignar','success':False},status=status.HTTP_400_BAD_REQUEST)
-            order.state_id_state = state_id
-            order.save()
+                return Response({
+                    'message': 'no hay estado para asignar', 
+                    'success': False
+                }, status=status.HTTP_400_BAD_REQUEST)
+                
+            try:
+                # 1. Buscamos el objeto de estado real usando su llave primaria id_state
+                state_obj = States.objects.get(id_state=state_id)
+                
+                # 2. Asignamos el objeto directamente a la relación 'state' definida en tu modelo Orders
+                order.state = state_obj
+                order.save()
+                
+            except States.DoesNotExist:
+                return Response({
+                    'message': f'El estado con ID {state_id} no existe en la base de datos', 
+                    'success': False
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # 3. Serializamos el pedido actualizado para retornar los datos frescos al Front
             serializer = self.get_serializer(order)
-            return Response({'message':'estado actualizado', 'object':serializer.data, 'success':True},status=status.HTTP_200_OK)
+            return Response({
+                'message': 'estado actualizado', 
+                'object': serializer.data, 
+                'success': True
+            }, status=status.HTTP_200_OK)
+            
         except Orders.DoesNotExist:
-            return Response({'message':'este pedido no existe','success':False},status=status.HTTP_404_NOT_FOUND)
+            return Response({
+                'message': 'este pedido no existe', 
+                'success': False
+            }, status=status.HTTP_404_NOT_FOUND)
+            
         except MultipleObjectsReturned:
-            return Response({'message':'multiples objetos retornados','success':False},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({
+                'message': 'multiples objetos retornados', 
+                'success': False
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
         except Exception as ex:
-            print('error de servidor:',ex)
-            return Response({'message':str(ex),'success':False},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            print('error de servidor:', ex)
+            return Response({
+                'message': str(ex), 
+                'success': False
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     @action(detail=False,methods=['GET'])
     def search_orders(self, request):
@@ -130,7 +165,60 @@ class OrdersViewSet(viewsets.GenericViewSet):
             return list
         except Exception as ex:
             return Response({'message':str(ex),'success':False},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+
+    @action(detail=False, methods=['GET'], permission_classes=[permissions.IsAuthenticated])
+    def get_my_orders(self, request):
+        """
+        Retorna las órdenes del usuario autenticado. 
+        Si no tiene perfil de cliente, se le crea uno usando sus datos de usuario de forma segura.
+        """
+        try:
+            # Importación segura de tu app de clientes
+            from api.Users.models import Clients  
+            
+            # 1. Buscamos el cliente (insensible a mayúsculas/minúsculas)
+            try:
+                current_client = Clients.objects.get(email__iexact=request.user.email)
+            except Clients.DoesNotExist:
+                # 🛠️ Quitamos 'username' para evitar el AttributeError
+                # Si request.user no tiene 'name', usará la primera parte del correo como nombre temporal
+                default_name = getattr(request.user, 'name', request.user.email.split('@')[0])
+                
+                current_client = Clients.objects.create(
+                    name=default_name,
+                    email=request.user.email,
+                    phone=getattr(request.user, 'phone', '0000000000'),
+                    address=getattr(request.user, 'address', ''),
+                    city='Medellín',
+                    doc=getattr(request.user, 'doc_identity', '00000000'),
+                    type_doc_id=1,
+                    state=True
+                )
+
+            # 2. Filtramos los pedidos de este cliente
+            orders = Orders.objects.filter(client=current_client).order_by('-order_date')
+            
+            if not orders.exists():
+                return Response({
+                    'message': 'No tienes pedidos registrados todavía',
+                    'results': [],
+                    'success': True
+                }, status=status.HTTP_200_OK)
+                
+            # 3. Retornamos las órdenes serializadas
+            serializer = self.get_serializer(orders, many=True)
+            return Response({
+                'message': 'Tus pedidos fueron obtenidos con éxito',
+                'results': serializer.data,
+                'success': True
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as ex:
+            logger.critical(f'Error interno en get_my_orders: {ex}')
+            return Response({
+                'message': f'Hubo un error al cargar tus pedidos: {str(ex)}',
+                'success': False
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class OrdersDetailsViewSet(viewsets.GenericViewSet):
     queryset = OrdersDetail.objects.all()
@@ -200,6 +288,7 @@ class OrdersDetailsViewSet(viewsets.GenericViewSet):
 class PaymentMethodsViewSet(viewsets.ModelViewSet):
     queryset = PaymentMethods.objects.all()
     serializer_class = PaymentMethodsSerializer
+    permission_classes = [permissions.AllowAny]
     required_module = 'Orders'
 
         

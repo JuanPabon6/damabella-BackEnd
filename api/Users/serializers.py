@@ -227,7 +227,7 @@ class TypesDocsSerializers(serializers.ModelSerializer):
         }
 
 class ClientsSerializers(serializers.ModelSerializer):
-    users = UsersSerializer(many=True, source='users_client')
+    # users = UsersSerializer(many=True, source='users_client')
     class Meta:
         model = Clients
         fields = '__all__'
@@ -243,12 +243,7 @@ class ClientsUnifiedSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Clients
-        fields = [
-            # 'id_client', 'name', 'type_doc', 'doc', 'phone', 
-            # 'address', 'email', 'state', 'city', 
-            # 'password', 'doc_identity'
-            '__all__'
-        ]
+        fields = '__all__'
         extra_kwargs = {
             'id_client': {'read_only': True},
             'user':{'read_only':True}

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Returns, ReturnDetail, Changes, ChangesDetails
-from api.Sales.models import Sales
+from api.Sales.models import Sales, SalesDetail
 import decimal
 from django.db import transaction
 from api.Inventory.services import  out_stock, add_stock
@@ -78,9 +78,21 @@ class ReturnsSerializer(serializers.ModelSerializer):
             variant = detail['variant']
             quantity = detail['quantity']
             
-            # Obtener precio del detalle de venta original
-            # Aquí deberías validar que la variante y cantidad sean válidas según la venta
-            unit_price = variant.price  # O buscar en SalesDetail de la venta original
+            # Obtener el precio unitario del detalle de venta original
+            try:
+                sales_detail = SalesDetail.objects.get(sale=return_obj.sale, variant=variant)
+                unit_price = sales_detail.unit_price
+            except SalesDetail.DoesNotExist:
+                logger.error(f'no se encontró el detalle de venta para variante: {variant.id}')
+                raise serializers.ValidationError(
+                    detail=f'La variante {variant.sku} no se encontró en la venta original',
+                    code='variant_not_in_sale'
+                )
+            except SalesDetail.MultipleObjectsReturned:
+                logger.warning(f'múltiples detalles encontrados para variante: {variant.id}')
+                sales_detail = SalesDetail.objects.filter(sale=return_obj.sale, variant=variant).first()
+                unit_price = sales_detail.unit_price
+            
             subtotal_price = decimal.Decimal(str(unit_price)) * quantity
 
             ReturnDetail.objects.create(

@@ -134,6 +134,30 @@ class HasModulePermission(BasePermission):
         'get_sales_by_id' : 'View',
         'search_details' : 'View',
 
+        #Returns
+        'get_returns' : 'View',
+        'get_returns_by_id': 'View',
+        'create_return' : 'Create',
+        'delete_return' : 'Delete',
+        'search_returns' : 'View',
+        'export_all_returns' : 'View',
+        'export_returns_by_id' : 'View',
+
+        #returnsdetail
+        'get_returns_by_id' : 'View',
+        'search_details' : 'View',
+
+        #changes
+        'get_changes' : 'View',
+        'get_change_by_id' : 'View',
+        'create_change' : 'Create',
+        'delete_change' : 'Delete',
+        'search_changes' : 'View',
+
+        #changesdetail
+        'get_changes_by_id' : 'View',
+        'search_details' : 'View',
+
         #compartidos
         'change_state' : 'Edit',
         'patch_state' : 'Edit',

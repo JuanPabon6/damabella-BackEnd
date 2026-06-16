@@ -55,6 +55,7 @@ class SalesViewSets(viewsets.GenericViewSet):
     def create_sale(self, request):
         try:
             serializer = self.get_serializer(data=request.data)
+            print(f'data: {request.data}')
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response({'message':'venta creada exitosamente', 'success':True}, status=status.HTTP_201_CREATED)

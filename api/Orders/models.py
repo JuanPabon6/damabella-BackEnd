@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from api.Clients.models import Clients
 from api.States.models import States
@@ -20,7 +21,8 @@ class PaymentMethods(models.Model):
 class Orders(models.Model):
     id_order = models.AutoField(primary_key=True)
     number_order = models.CharField(max_length=50, unique=True, editable=False, default=generate_number_order)
-    client = models.ForeignKey(Clients, on_delete=models.CASCADE)
+    client = models.ForeignKey(Clients, on_delete=models.CASCADE, default=1)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True, related_name='orders', db_column='user_id')
     order_date = models.DateTimeField(auto_now_add=True)
     payment_method = models.ForeignKey(PaymentMethods, on_delete=models.PROTECT)
     address_shipment = models.CharField(max_length=200)

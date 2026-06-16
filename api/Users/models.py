@@ -10,6 +10,23 @@ class UserManager(BaseUserManager):
         if not email:
             raise ValueError('El email es obligatorio')
         email = self.normalize_email(email)
+        extra_fields.pop('username', None)
+        
+        # Generar valores por defecto para pruebas si no se especifican
+        if 'type_doc' not in extra_fields and 'type_doc_id' not in extra_fields:
+            from api.Users.models import Typesdoc
+            type_doc, _ = Typesdoc.objects.get_or_create(name='Cedula')
+            extra_fields['type_doc'] = type_doc
+            
+        if 'doc_identity' not in extra_fields:
+            extra_fields['doc_identity'] = str(random.randint(10000000, 99999999))
+            
+        if 'name' not in extra_fields:
+            extra_fields['name'] = email.split('@')[0]
+            
+        if 'phone' not in extra_fields:
+            extra_fields['phone'] = '0000000000'
+
         user  = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
@@ -55,4 +72,19 @@ class Typesdoc(models.Model):
 
     class Meta:
         db_table = 'Types_docs'
+
+class Clients(models.Model):
+    id_client = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+    type_doc = models.ForeignKey(Typesdoc, on_delete=models.PROTECT)
+    doc = models.CharField(max_length=30, unique=True)
+    phone = models.CharField(max_length=20)
+    address = models.CharField(max_length=200)
+    email = models.EmailField(max_length=120)
+    state = models.BooleanField(default=True)
+    city = models.CharField(max_length=100)
+    # user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='users_client', to_field='id_user',db_column='user_id', default=1)
+
+    class Meta:
+        db_table = 'Clients'
 # Create your models here.

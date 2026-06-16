@@ -2,8 +2,8 @@ from django.shortcuts import render
 from rest_framework import viewsets, status, filters
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from .models import Purchases, PurchaseDetail
-from .serializers import PurchasesSerializer, PurchaseDetailSerializer
+from .models import Purchases, PurchaseDetail, Iva
+from .serializers import PurchasesSerializer, PurchaseDetailSerializer, IvaSerializer
 from django.db.utils import IntegrityError
 from django.core.exceptions import MultipleObjectsReturned
 from api.Inventory.services import out_stock
@@ -34,6 +34,7 @@ class PurchasesViewSet(viewsets.GenericViewSet):
             serializer = self.get_serializer(purchases, many=True)
             return Response({'message': 'compras obtenidas', 'results': serializer.data, 'success': True}, status=status.HTTP_200_OK)
         except Exception as ex:
+            print(f'error: {ex}')
             return Response({'message': str(ex), 'success': False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=True, methods=['GET'])
@@ -53,12 +54,17 @@ class PurchasesViewSet(viewsets.GenericViewSet):
     def create_purchase(self, request):
         try:
             serializer = self.get_serializer(data=request.data)
+            if not serializer.is_valid():
+                print(f'error de validacion: {serializer.errors}')
+            print(f'data: {request.data}')
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response({'message': 'compra creada exitosamente', 'object': serializer.data, 'success': True}, status=status.HTTP_201_CREATED)
-        except IntegrityError:
+        except IntegrityError as ie:
+            print(f'error de datos: {ie}')
             return Response({'message': 'error de integridad en los datos', 'success': False}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as ex:
+            print(f'error: {ex}')
             return Response({'message': str(ex), 'success': False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=True, methods=['PUT'])
@@ -81,14 +87,12 @@ class PurchasesViewSet(viewsets.GenericViewSet):
         try:
             purchase = self.get_object()
 
-            current_state = purchase.state.name_state
-            if current_state in ['Entregado', 'Cancelado']:
-                return Response({'message': f'No se puede cambiar el estado de una compra {current_state}','success': False}, status=status.HTTP_400_BAD_REQUEST)
-            state_id = request.data.get('state')
-            if not state_id:
-                return Response({'message': 'estado requerido', 'success': False}, status=status.HTTP_400_BAD_REQUEST)
+            is_canceled = request.data.get('canceled')
 
-            purchase.state_id_state = state_id
+            is_canceled_bool = str(is_canceled).lower() in ['true', '1']
+
+            purchase.canceled = is_canceled_bool
+
             purchase.save()
             serializer = self.get_serializer(purchase)
             return Response({'message': 'estado actualizado', 'object': serializer.data, 'success': True}, status=status.HTTP_200_OK)
@@ -116,9 +120,9 @@ class PurchasesViewSet(viewsets.GenericViewSet):
         try:
             purchase = self.get_object()
 
-            current_state = purchase.state.name_state
-            if current_state != 'Anulado':
-                return Response({'message': f'Solo se pueden eliminar compras anuladas, Estado:{purchase.state.name_state}', 'success': False}, status=status.HTTP_400_BAD_REQUEST)
+            is_canceled = purchase.canceled
+            if is_canceled != True:
+                return Response({'message': f'Solo se pueden eliminar compras anuladas','success': False}, status=status.HTTP_400_BAD_REQUEST)
 
             for detail in purchase.detail_purchase.all():
                 out_stock(detail.variant, detail.quantity)
@@ -215,3 +219,8 @@ class PurchaseDetailViewSet(viewsets.GenericViewSet):
             return Response({'message': 'resultados obtenidos', 'results': serializer.data, 'success': True}, status=status.HTTP_200_OK)
         except Exception as ex:
             return Response({'message': str(ex), 'success': False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class IvaViewSets(viewsets.ModelViewSet):
+    required_module = 'Compras'
+    queryset = Iva.objects.all()
+    serializer_class = IvaSerializer

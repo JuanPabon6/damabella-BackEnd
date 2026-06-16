@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework.response import Response
-from rest_framework import viewsets,status
+from rest_framework import viewsets,status, permissions
 from rest_framework.decorators import action
 from .models import Inventory
 from .serializers import InventorySerializers, AdjustStockSerializer
@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404
 class InventoryViewSets(viewsets.GenericViewSet):
     queryset = Inventory.objects.all()
     serializer_class = InventorySerializers
-    # permission_classes = []
+    permission_classes = [permissions.AllowAny]
     # authentication_classes = []
 
     def get_serializer_class(self):

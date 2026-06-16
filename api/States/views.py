@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.core.exceptions import MultipleObjectsReturned
@@ -10,6 +10,7 @@ class StatesViewSets(viewsets.GenericViewSet):
     queryset = States.objects.all()
     required_module = 'Estados'
     serializer_class = StatesSerializers
+    permission_classes = [permissions.AllowAny]
 
     @action(detail=False,methods=['GET'])
     def get_states(self, request):
