@@ -55,10 +55,7 @@ class ProductsViewSets(viewsets.GenericViewSet):
     @transaction.atomic
     def create_products(self, request):
         try:
-<<<<<<< HEAD
-=======
             print(f'data enviada: {request.data}')
->>>>>>> juanjo
             data_product = request.data
             serializer_product = self.get_serializer(data=data_product)
             serializer_product.is_valid(raise_exception=True)
@@ -162,13 +159,8 @@ class ProductsViewSets(viewsets.GenericViewSet):
 class ColorViewSets(viewsets.GenericViewSet):
     queryset = Colors.objects.all()
     serializer_class = ColorsSerializer
-<<<<<<< HEAD
-    required_module = 'Products'
-    # permission_classes = []
-=======
     required_module = 'Productos'
     permission_classes = [permissions.AllowAny]
->>>>>>> juanjo
     # authentication_classes = []
 
     @action(detail=False,methods=['GET'])
@@ -236,13 +228,8 @@ class ColorViewSets(viewsets.GenericViewSet):
 class SizesViewSets(viewsets.GenericViewSet):
     queryset = Sizes.objects.all()
     serializer_class = SizesSerializer
-<<<<<<< HEAD
-    requires_module = 'Products'
-    # permission_classes = []
-=======
     required_module = 'Productos'
     permission_classes = [permissions.AllowAny]
->>>>>>> juanjo
     # authentication_classes = []
 
     @action(detail=False,methods=['GET'])
@@ -365,13 +352,8 @@ class ProductPhotosViewSets(viewsets.GenericViewSet):
 class VariantProductViewSets(viewsets.GenericViewSet):
     queryset = VariantProduct.objects.all()
     serializer_class = VariantProductsSerializer    
-<<<<<<< HEAD
-    required_module = 'Products'
-    # permission_classes = []
-=======
     required_module = 'Productos'
     permission_classes = [permissions.AllowAny]
->>>>>>> juanjo
     # authentication_classes = []
 
     @action(detail=False,methods=['GET'])

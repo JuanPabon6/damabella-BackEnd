@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import models
 import string, random
-from api.Clients.models import Clients
+from api.Users.models import Clients
 from api.States.models import States
 from api.Orders.models import PaymentMethods
 from api.Products.models import VariantProduct

@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models
-from api.Clients.models import Clients
+from api.Users.models import Clients
 from api.States.models import States
 from api.Products.models import VariantProduct
 import random,string
