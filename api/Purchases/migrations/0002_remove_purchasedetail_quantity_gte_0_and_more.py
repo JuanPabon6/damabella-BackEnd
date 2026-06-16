@@ -12,10 +12,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveConstraint(
-            model_name='purchasedetail',
-            name='quantity_gte_0',
-        ),
+        # migrations.RemoveConstraint(
+        #     model_name='purchasedetail',
+        #     name='quantity_gte_0',
+        # ),
         migrations.AlterField(
             model_name='purchasedetail',
             name='variant',
