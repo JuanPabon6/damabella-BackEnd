@@ -14,7 +14,7 @@ from api.Sales.models import Sales, SalesDetail
 from api.Orders.models import Orders, OrdersDetail
 from api.Users.models import Users
 from api.Returns.models import Returns
-from api.Sales.views import DashboardViewSets
+from api.Dashboard.views import DashboardViewSets
 
 
 User = get_user_model()
@@ -51,9 +51,9 @@ class DashboardViewSetsTestCase(APITestCase):
     def test_get_users_active_success(self):
         """Test: obtener cantidad de usuarios activos exitosamente"""
         # Crear usuarios activos e inactivos
-        Users.objects.create(username='active1', is_active=True)
-        Users.objects.create(username='active2', is_active=True)
-        Users.objects.create(username='inactive1', is_active=False)
+        Users.objects.create_user(email='active1@test.com', is_active=True)
+        Users.objects.create_user(email='active2@test.com', is_active=True)
+        Users.objects.create_user(email='inactive1@test.com', is_active=False)
 
         response = self.client.get(self.url_users_active)
 
@@ -513,9 +513,9 @@ class DashboardViewSetsIntegrationTestCase(APITestCase):
     def test_actual_database_users_active(self):
         """Test: usuarios activos con base de datos real"""
         # Crear usuarios de prueba
-        Users.objects.create(username='user1', is_active=True)
-        Users.objects.create(username='user2', is_active=True)
-        Users.objects.create(username='user3', is_active=False)
+        Users.objects.create_user(email='user1@test.com', is_active=True)
+        Users.objects.create_user(email='user2@test.com', is_active=True)
+        Users.objects.create_user(email='user3@test.com', is_active=False)
 
         url = reverse('dashboard-get-users-active')
         response = self.client.get(url)

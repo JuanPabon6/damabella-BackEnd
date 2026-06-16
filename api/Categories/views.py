@@ -5,10 +5,12 @@ from rest_framework.exceptions import APIException,ValidationError
 from rest_framework.decorators import action
 from django.db.utils import IntegrityError
 from django.core.exceptions import MultipleObjectsReturned
+from django.http import Http404
 from .models import Categories
 from .serializers import CategoriesSerializers, PatchStateCategoriesSerializers
 from api.Exceptions.exceptions import ObjectNotExists,MultiResults, IntegrityException, InvalidData
 from api.Products.models import Products
+from api.Products.serializers import ProductsSerializer
 
 class CategoriesViewSets(viewsets.GenericViewSet):
     queryset = Categories.objects.all()
@@ -28,7 +30,7 @@ class CategoriesViewSets(viewsets.GenericViewSet):
     def get_categories(self, request):
         try:
             categories = self.get_queryset()
-            if not categories.exists:
+            if not categories.exists():
                 return Response({'message':'no se encontraron resultados','results':[], 'success':True}, status=status.HTTP_404_NOT_FOUND)
             serialzier = self.get_serializer(categories,many=True)
             return Response({'results':serialzier.data, 'success':True}, status=status.HTTP_200_OK)
@@ -41,6 +43,8 @@ class CategoriesViewSets(viewsets.GenericViewSet):
             category = self.get_object()
             serializer = self.get_serializer(category,many=False)
             return Response({'results':serializer.data, 'success':True}, status=status.HTTP_200_OK)
+        except Http404:
+            return Response({'message': 'No se encontraron resultados','results': [],'success': True}, status=status.HTTP_404_NOT_FOUND)
         except Categories.DoesNotExist:
             return Response({'message': 'No se encontraron resultados','results': [],'success': True}, status=status.HTTP_404_NOT_FOUND)
         except MultipleObjectsReturned:
@@ -56,8 +60,8 @@ class CategoriesViewSets(viewsets.GenericViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response({'results':'creado exitosamente', 'object':serializer.data, 'success':True}, status=status.HTTP_201_CREATED)
-        # except ValidationError:
-        #     return Response({'message':'datos incorrectos enviados', 'success':False}, status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError as ex:
+            return Response({'message':'datos incorrectos enviados', 'errors': ex.detail, 'success':False}, status=status.HTTP_400_BAD_REQUEST)
         except IntegrityError:
             return Response({'message':'error de llaves e integridad de datos enviados', 'success':False}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as ex:
@@ -69,6 +73,8 @@ class CategoriesViewSets(viewsets.GenericViewSet):
             category = self.get_object()
             category.delete()
             return Response({'results':'eliminado exitosamente', 'success':True}, status=status.HTTP_200_OK)
+        except Http404:
+            return Response({'message': 'No se encontraron resultados','results': [],'success': True}, status=status.HTTP_404_NOT_FOUND)
         except Categories.DoesNotExist:
             return Response({'message': 'No se encontraron resultados','results': [],'success': True}, status=status.HTTP_404_NOT_FOUND)
         except MultipleObjectsReturned:
@@ -84,8 +90,12 @@ class CategoriesViewSets(viewsets.GenericViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response({'message':'actualizado exitosamente','category':serializer.data, 'success':True})
+        except Http404:
+            return Response({'message':'categoria no encontrada', 'results':[], 'success':False}, status=status.HTTP_404_NOT_FOUND)
         except Categories.DoesNotExist:
             return Response({'message':'categoria no encontrada', 'results':[], 'success':False})
+        except ValidationError as ex:
+            return Response({'message':'datos incorrectos', 'errors': ex.detail, 'success':False}, status=status.HTTP_400_BAD_REQUEST)
         except MultipleObjectsReturned:
             return Response({'message':'multiples objetos devueltos','results':[], 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as ex:
@@ -109,6 +119,10 @@ class CategoriesViewSets(viewsets.GenericViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response({'message':'estado actualizado exitosamente', 'categoria':serializer.data, 'success':True}, status=status.HTTP_200_OK)
+        except Http404:
+            return Response({'message':'categoria no encontrada', 'results':[], 'success':False}, status=status.HTTP_404_NOT_FOUND)
+        except ValidationError as ex:
+            return Response({'message':'datos incorrectos', 'errors': ex.detail, 'success':False}, status=status.HTTP_400_BAD_REQUEST)
         except MultipleObjectsReturned:
             return Response({'message':'multiples objetos devueltos', 'results':[], 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except IntegrityError:
@@ -120,7 +134,7 @@ class CategoriesViewSets(viewsets.GenericViewSet):
     def get_products_by_category(self, request, pk=None):
         try:
             products = Products.objects.filter(category=pk)
-            serializer = self.get_serializer(products, many=True)
+            serializer = ProductsSerializer(products, many=True)
             return Response({'message':'productos obtenidos','results':serializer.data,'success':True}, status=status.HTTP_200_OK)
         except Exception as ex:
             return Response({'error':str(ex),'success':False},status=status.HTTP_500_INTERNAL_SERVER_ERROR)

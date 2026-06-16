@@ -37,7 +37,7 @@ class ChangePasswordViewTestCase(APITestCase):
             username='testuser', email='test@example.com', password='oldpass123'
         )
         self.client.force_authenticate(user=self.user)
-        self.url = reverse('change-password')
+        self.url = reverse('change_password')
 
     @patch('api.Users.views.ChangePasswordSerializer')
     def test_change_password_success(self, mock_serializer_class):
@@ -70,7 +70,7 @@ class ChangePasswordViewTestCase(APITestCase):
 class RequestOTPViewTestCase(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.url = reverse('request-otp')
+        self.url = reverse('request_otp')
 
     @patch('api.Users.views.RequestOTPSerializer')
     def test_request_otp_success(self, mock_serializer_class):
@@ -101,7 +101,7 @@ class RequestOTPViewTestCase(APITestCase):
 class ValidateOTPViewTestCase(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.url = reverse('validate-otp')
+        self.url = reverse('validate_otp')
 
     @patch('api.Users.views.ValidateOTPSerializer')
     def test_validate_otp_success(self, mock_serializer_class):
@@ -128,7 +128,7 @@ class ValidateOTPViewTestCase(APITestCase):
 class ResetPasswordViewTestCase(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.url = reverse('reset-password')
+        self.url = reverse('reset_password')
 
     @patch('api.Users.views.ResetPasswordSerializer')
     def test_reset_password_success(self, mock_serializer_class):

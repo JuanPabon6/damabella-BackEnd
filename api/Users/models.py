@@ -10,6 +10,23 @@ class UserManager(BaseUserManager):
         if not email:
             raise ValueError('El email es obligatorio')
         email = self.normalize_email(email)
+        extra_fields.pop('username', None)
+        
+        # Generar valores por defecto para pruebas si no se especifican
+        if 'type_doc' not in extra_fields and 'type_doc_id' not in extra_fields:
+            from api.Users.models import Typesdoc
+            type_doc, _ = Typesdoc.objects.get_or_create(name='Cedula')
+            extra_fields['type_doc'] = type_doc
+            
+        if 'doc_identity' not in extra_fields:
+            extra_fields['doc_identity'] = str(random.randint(10000000, 99999999))
+            
+        if 'name' not in extra_fields:
+            extra_fields['name'] = email.split('@')[0]
+            
+        if 'phone' not in extra_fields:
+            extra_fields['phone'] = '0000000000'
+
         user  = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)

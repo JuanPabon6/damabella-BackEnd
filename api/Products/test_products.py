@@ -160,6 +160,7 @@ class ProductsViewSetsTestCase(APITestCase):
     @patch('api.Products.views.create_inventory_for_variant')
     @patch('django.db.transaction.atomic')
     def test_create_products_success_zero_stock(self, mock_atomic, mock_create_inventory, mock_variant_serializer, mock_get_serializer):
+        
         mock_product_serializer = MagicMock()
         mock_product_serializer.is_valid.return_value = True
         mock_product_instance = MagicMock()
