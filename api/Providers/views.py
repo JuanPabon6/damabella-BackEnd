@@ -62,6 +62,10 @@ class ProvidersViewSets(viewsets.GenericViewSet):
             return Response({'results':'eliminado exitosamente','succes':True}, status=status.HTTP_200_OK)
         except MultipleObjectsReturned:
             return Response({'message':'multiples objetos retornados', 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except IntegrityError:
+            return Response({'message':'No se puede eliminar el proveedor porque tiene compras asociadas.', 'success':False}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as ex:
+            return Response({'message':str(ex), 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     @action(detail=True,methods=['PUT'])
     def update_providers(self, request, pk=None):

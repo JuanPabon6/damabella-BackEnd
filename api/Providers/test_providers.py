@@ -303,8 +303,10 @@ class ProvidersViewSetsTestCase(APITestCase):
         url = reverse('providers-delete-providers', kwargs={'pk': 1})
         response = self.client.delete(url)
 
-        # No está capturado específicamente, cae en Exception
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # Se captura específicamente y retorna un 400 Bad Request
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(response.data['success'])
+        self.assertIn('No se puede eliminar', response.data['message'])
 
     # ==================== TESTS PARA update_providers ====================
 
