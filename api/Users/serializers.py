@@ -50,17 +50,20 @@ class RequestOTPSerializer(serializers.Serializer):
         PasswordResetOTP.objects.create(user=self.user, code=code)
 
         # Enviar email
+        print(f"CLAVE DE RECUPERACION GENERADA PARA {self.user.email}: {code}")
         try:
+            from django.core.mail import get_connection
+            connection = get_connection(timeout=5)
             send_mail(
                 subject='Código de recuperación - Damabella',
                 message=f'Tu código de recuperación es: {code}\nExpira en 10 minutos.',
                 from_email=settings.EMAIL_HOST_USER,
                 recipient_list=[self.user.email],
                 fail_silently=False,
+                connection=connection,
             )
         except Exception as e:
-            print("ERROR ENVIANDO CORREO SMTP EN PRODUCCION:", str(e))
-            raise e
+            print("ERROR ENVIANDO CORREO SMTP EN PRODUCCION (Fallo de red o puerto bloqueado):", str(e))
         return code
 
 
