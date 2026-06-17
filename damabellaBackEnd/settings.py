@@ -38,7 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',
     'django.contrib.staticfiles',
+    'cloudinary',
     'rest_framework',
     'rest_framework_simplejwt',
     'drf_yasg',
@@ -66,6 +68,14 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config('EMAIL')
 EMAIL_HOST_PASSWORD = config('EMAIL_SMTP')
 DEFAULT_FROM_EMAIL = config('EMAIL')
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': config('CLOUDINARY_API_KEY'),
+    'API_SECRET': config('CLOUDINARY_API_SECRET'),
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
