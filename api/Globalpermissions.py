@@ -38,6 +38,7 @@ class HasModulePermission(BasePermission):
         'get_providers_by_id' : 'View',
         'delete_providers' : 'Delete',
         'update_providers' : 'Edit',
+        'purchase_history' : 'View',
 
         #Roles
         'create_roles' : 'Create',

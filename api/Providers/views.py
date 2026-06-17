@@ -99,6 +99,41 @@ class ProvidersViewSets(viewsets.GenericViewSet):
         except MultipleObjectsReturned:
             return Response({'message':'multiples objetos retornados', 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(detail=True, methods=['GET'])
+    def purchase_history(self, request, pk=None):
+        try:
+            from api.Purchases.models import Purchases, PurchaseDetail
+            from api.Purchases.serializers import PurchasesSerializer
+            from django.db.models import Sum
+
+            provider = self.get_object()
+            purchases = Purchases.objects.filter(provider=provider, canceled=False)
+
+            total_purchases = purchases.count()
+
+            total_qty_agg = PurchaseDetail.objects.filter(
+                purchase__provider=provider,
+                purchase__canceled=False
+            ).aggregate(total_qty=Sum('quantity'))
+            total_products_received = total_qty_agg['total_qty'] or 0
+
+            total_amount_agg = purchases.aggregate(total_sum=Sum('total'))
+            total_amount_accumulated = total_amount_agg['total_sum'] or 0.0
+
+            serializer = PurchasesSerializer(purchases, many=True)
+
+            return Response({
+                'success': True,
+                'stats': {
+                    'total_purchases': total_purchases,
+                    'total_products_received': total_products_received,
+                    'total_amount_accumulated': float(total_amount_accumulated)
+                },
+                'results': serializer.data
+            }, status=status.HTTP_200_OK)
+        except Exception as ex:
+            return Response({'error': str(ex), 'success': False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         
 
         
