@@ -107,9 +107,10 @@ class ProvidersViewSets(viewsets.GenericViewSet):
             from django.db.models import Sum
 
             provider = self.get_object()
-            purchases = Purchases.objects.filter(provider=provider, canceled=False)
+            all_purchases = Purchases.objects.filter(provider=provider)
+            active_purchases = all_purchases.filter(canceled=False)
 
-            total_purchases = purchases.count()
+            total_purchases = active_purchases.count()
 
             total_qty_agg = PurchaseDetail.objects.filter(
                 purchase__provider=provider,
@@ -117,10 +118,10 @@ class ProvidersViewSets(viewsets.GenericViewSet):
             ).aggregate(total_qty=Sum('quantity'))
             total_products_received = total_qty_agg['total_qty'] or 0
 
-            total_amount_agg = purchases.aggregate(total_sum=Sum('total'))
+            total_amount_agg = active_purchases.aggregate(total_sum=Sum('total'))
             total_amount_accumulated = total_amount_agg['total_sum'] or 0.0
 
-            serializer = PurchasesSerializer(purchases, many=True)
+            serializer = PurchasesSerializer(all_purchases, many=True)
 
             return Response({
                 'success': True,

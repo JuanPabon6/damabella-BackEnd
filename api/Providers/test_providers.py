@@ -22,6 +22,9 @@ class ProvidersViewSetsTestCase(APITestCase):
 
     def setUp(self):
         """Configuración inicial para cada test"""
+        from api.Roles.models import Roles
+        Roles.objects.get_or_create(idRol=2, defaults={'name': 'Standard User'})
+        
         self.client = APIClient()
         self.user = User.objects.create_user(
             username='testuser',
@@ -724,17 +727,56 @@ class ProvidersViewSetsTestCase(APITestCase):
         # Implementar según tu serializer real
         pass
 
-    def test_patch_state_serializer_fields(self):
-        """Test: verificar campos del serializer de estado"""
-        # PatchStateSerializer debería tener solo el campo 'state'
-        # Implementar según tu serializer real
-        pass
+    @patch('api.Providers.views.ProvidersViewSets.get_object')
+    def test_purchase_history_success(self, mock_get_object):
+        """Test: obtener historial de compras exitosamente"""
+        # Mock provider
+        mock_provider = MagicMock()
+        mock_provider.id_provider = 1
+        mock_get_object.return_value = mock_provider
+
+        # Mock Purchases query and serialization
+        with patch('api.Purchases.models.Purchases.objects.filter') as mock_purchases_filter, \
+             patch('api.Purchases.models.PurchaseDetail.objects.filter') as mock_details_filter, \
+             patch('api.Purchases.serializers.PurchasesSerializer') as mock_serializer_class:
+             
+            # Setup purchases mocks
+            mock_purchases = MagicMock()
+            mock_purchases.count.return_value = 2
+            mock_purchases.aggregate.return_value = {'total_sum': 150000.0}
+            mock_purchases_filter.return_value = mock_purchases
+            
+            # Setup details mocks
+            mock_details = MagicMock()
+            mock_details.aggregate.return_value = {'total_qty': 10}
+            mock_details_filter.return_value = mock_details
+            
+            # Setup serializer mocks
+            mock_serializer = MagicMock()
+            mock_serializer.data = [
+                {'id_purchase': 1, 'purchase_number': 'ORD-1', 'total': 100000.0, 'canceled': False},
+                {'id_purchase': 2, 'purchase_number': 'ORD-2', 'total': 50000.0, 'canceled': True}
+            ]
+            mock_serializer_class.return_value = mock_serializer
+            
+            url = reverse('providers-purchase-history', kwargs={'pk': 1})
+            response = self.client.get(url)
+            
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertTrue(response.data['success'])
+            self.assertEqual(response.data['stats']['total_purchases'], 2)
+            self.assertEqual(response.data['stats']['total_products_received'], 10)
+            self.assertEqual(response.data['stats']['total_amount_accumulated'], 150000.0)
+            self.assertEqual(len(response.data['results']), 2)
 
 
 class ProvidersViewSetsIntegrationTestCase(APITestCase):
     """Tests de integración con base de datos real"""
 
     def setUp(self):
+        from api.Roles.models import Roles
+        Roles.objects.get_or_create(idRol=2, defaults={'name': 'Standard User'})
+        
         self.client = APIClient()
         self.user = User.objects.create_user(
             username='integrationuser',
@@ -787,6 +829,9 @@ class ProvidersSearchFilterTestCase(APITestCase):
     """Tests específicos para el filtro de búsqueda"""
 
     def setUp(self):
+        from api.Roles.models import Roles
+        Roles.objects.get_or_create(idRol=2, defaults={'name': 'Standard User'})
+        
         self.client = APIClient()
         self.user = User.objects.create_user(
             username='searchuser',
