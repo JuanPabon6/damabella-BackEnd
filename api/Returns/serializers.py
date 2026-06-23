@@ -27,7 +27,7 @@ class ReturnDetailSerializer(serializers.ModelSerializer):
 class ReturnsSerializer(serializers.ModelSerializer):
     details = ReturnDetailSerializer(many=True, source='return_detail')
     sale_number = serializers.CharField(source='sale.number_sale', read_only=True)
-    state_name = serializers.CharField(source='state.name_state', read_only=True)
+    state_name = serializers.SerializerMethodField()
     
     class Meta:
         model = Returns
@@ -39,6 +39,9 @@ class ReturnsSerializer(serializers.ModelSerializer):
             'balance_in_favor': {'read_only': True},
             'difference_to_pay': {'read_only': True}
         }
+
+    def get_state_name(self, obj):
+        return "Anulado" if obj.state else "Activo"
 
     def validate_details(self, details):
         if not details:

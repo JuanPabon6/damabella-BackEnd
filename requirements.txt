@@ -47,3 +47,4 @@ whitenoise==6.9.0
 dj-database-url==2.3.0
 cloudinary==1.44.2
 django-cloudinary-storage==0.3.0
+selenium>=4.0.0

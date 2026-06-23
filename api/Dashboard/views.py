@@ -142,6 +142,68 @@ class DashboardViewSets(viewsets.GenericViewSet):
             logger.critical(f'error al obtener métricas: {ex}')
             return Response({'message': str(ex), 'success': False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(detail=False, methods=['get'])
+    def dinero_ventas_por_mes(self, request):
+        try:
+            now = timezone.now()
+            resultados = []
+            meses_nombres = {
+                1: 'Ene', 2: 'Feb', 3: 'Mar', 4: 'Abr', 5: 'May', 6: 'Jun',
+                7: 'Jul', 8: 'Ago', 9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Dic'
+            }
+            
+            for i in range(5, -1, -1):
+                year = now.year
+                month = now.month - i
+                while month <= 0:
+                    month += 12
+                    year -= 1
+                
+                suma = Sales.objects.filter(
+                    date_sale__month=month,
+                    date_sale__year=year
+                ).aggregate(total_dinero=Sum('total'))['total_dinero'] or 0
+                
+                resultados.append({
+                    'mes': meses_nombres[month],
+                    'valor': float(suma)
+                })
+                
+            return Response({'success': True, 'results': resultados}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['get'])
+    def cantidad_ventas_por_mes(self, request):
+        try:
+            now = timezone.now()
+            resultados = []
+            meses_nombres = {
+                1: 'Ene', 2: 'Feb', 3: 'Mar', 4: 'Abr', 5: 'May', 6: 'Jun',
+                7: 'Jul', 8: 'Ago', 9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Dic'
+            }
+            
+            for i in range(5, -1, -1):
+                year = now.year
+                month = now.month - i
+                while month <= 0:
+                    month += 12
+                    year -= 1
+                
+                cantidad = Sales.objects.filter(
+                    date_sale__month=month,
+                    date_sale__year=year
+                ).count()
+                
+                resultados.append({
+                    'mes': meses_nombres[month],
+                    'valor': cantidad
+                })
+                
+            return Response({'success': True, 'results': resultados}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 # Create your views here.

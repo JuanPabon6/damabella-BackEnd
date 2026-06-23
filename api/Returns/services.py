@@ -23,20 +23,46 @@ def Export_returns_list(queryset):
     ws.append(headers)
 
     for return_obj in queryset:
-        for detail in return_obj.return_detail.all():
+        sale_number = return_obj.sale.number_sale if return_obj.sale else 'Sin Venta'
+        state_name = 'Anulado' if return_obj.state else 'Activo'
+        return_date_str = return_obj.return_date.strftime('%Y-%m-%d %H:%M:%S') if return_obj.return_date else ''
+
+        details = return_obj.return_detail.all()
+        if not details.exists():
             ws.append([
                 return_obj.return_number,
-                return_obj.sale.number_sale,
-                return_obj.return_date,
-                return_obj.reason,
-                return_obj.state.name_state,
-                f'{detail.variant.product.name} - {detail.variant.sku}',
-                detail.quantity,
-                detail.subtotal,
-                return_obj.total,
-                return_obj.balance_in_favor,
-                return_obj.difference_to_pay
+                sale_number,
+                return_date_str,
+                return_obj.reason or '',
+                state_name,
+                'Sin productos',
+                0,
+                0,
+                return_obj.total or 0,
+                return_obj.balance_in_favor or 0,
+                return_obj.difference_to_pay or 0
             ])
+        else:
+            for detail in details:
+                product_str = 'Producto no especificado'
+                if detail.variant:
+                    sku_str = detail.variant.sku or 'Sin SKU'
+                    prod_name = detail.variant.product.name if detail.variant.product else 'Producto sin nombre'
+                    product_str = f'{prod_name} - {sku_str}'
+                
+                ws.append([
+                    return_obj.return_number,
+                    sale_number,
+                    return_date_str,
+                    return_obj.reason or '',
+                    state_name,
+                    product_str,
+                    detail.quantity or 0,
+                    detail.subtotal or 0,
+                    return_obj.total or 0,
+                    return_obj.balance_in_favor or 0,
+                    return_obj.difference_to_pay or 0
+                ])
 
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

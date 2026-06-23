@@ -18,7 +18,7 @@ class Returns(models.Model):
     return_date = models.DateField(auto_now=True)
     reason = models.CharField(max_length=200)
     total = models.DecimalField(max_digits=10, decimal_places=2)
-    state = models.ForeignKey(States, on_delete=models.PROTECT, related_name='return_state', default=1)
+    state = models.BooleanField(default=False)
     observations = models.CharField(max_length=300, null=True, blank=True)
     balance_in_favor = models.DecimalField(max_digits=10, decimal_places=2)
     difference_to_pay = models.DecimalField(max_digits=10,decimal_places=2)

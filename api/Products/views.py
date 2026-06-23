@@ -20,7 +20,7 @@ class ProductsViewSets(viewsets.GenericViewSet):
     permission_classes = [permissions.AllowAny]
     required_module = 'Productos'
     filter_backends = [filters.SearchFilter]
-    search_fields = ['id_product','name','category','price','is_active']
+    search_fields = ['id_product','name','category__name','price','is_active']
 
     def get_serializer_class(self):
         if self.action == 'partial_update':
@@ -118,7 +118,7 @@ class ProductsViewSets(viewsets.GenericViewSet):
         try:
             queryset = self.get_queryset()
             instance = self.filter_queryset(queryset=queryset)
-            serializer = self.get_serializer_class(instance, many=True)
+            serializer = self.get_serializer(instance, many=True)
             return Response({'message':'productos encontrados', 'results':serializer.data, 'success':True}, status=status.HTTP_200_OK)
         except Products.DoesNotExist:
             return Response({'message':'no se encontraron productos', 'results':[], 'success':False}, status=status.HTTP_404_NOT_FOUND)

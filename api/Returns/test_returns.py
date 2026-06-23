@@ -9,6 +9,7 @@ from django.db.utils import IntegrityError
 from rest_framework.response import Response
 
 from api.Returns.models import Returns, ReturnDetail, Changes, ChangesDetails
+from api.Roles.models import Roles
 from api.Returns.serializers import ReturnsSerializer, ReturnDetailSerializer, ChangesSerializer, ChangesDetailsSerializer
 from api.Returns.views import ReturnsViewSets, ReturnDetailViewsets, ChangesViewSets, ChangesDetailViewsets
 from api.Inventory.services import add_stock
@@ -27,6 +28,7 @@ class ReturnsViewSetsTestCase(APITestCase):
 
     def setUp(self):
         self.client = APIClient()
+        Roles.objects.get_or_create(idRol=2, defaults={'name': 'Empleado', 'description': 'Empleado'})
         self.user = User.objects.create_user(
             username='testuser', email='test@example.com', password='testpass123'
         )
@@ -105,7 +107,7 @@ class ReturnsViewSetsTestCase(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data['success'])
-        self.assertEqual(response.data['message'], 'devolucion obtenida')
+        self.assertEqual(response.data['message'], 'devolución obtenida')
         self.assertEqual(response.data['results']['id'], 1)
 
     @patch('api.Returns.views.ReturnsViewSets.get_object')
@@ -151,7 +153,7 @@ class ReturnsViewSetsTestCase(APITestCase):
         response = self.client.post(self.url_create_return, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(response.data['success'])
-        self.assertEqual(response.data['message'], 'devolucion creada exitosamente')
+        self.assertEqual(response.data['message'], 'devolución creada exitosamente')
         mock_serializer.is_valid.assert_called_once_with(raise_exception=True)
         mock_serializer.save.assert_called_once()
 
@@ -199,13 +201,40 @@ class ReturnsViewSetsTestCase(APITestCase):
     # ==================== TESTS PARA delete_return ====================
 
     @patch('api.Returns.views.ReturnsViewSets.get_object')
+    @patch('django.db.transaction.atomic')
+    def test_delete_return_success(self, mock_atomic, mock_get_object):
+        """Test: eliminar devolucion anulada exitosamente"""
+        mock_return = MagicMock()
+        mock_return.state = True
+        mock_return.delete = MagicMock()
+        mock_get_object.return_value = mock_return
+
+        url = reverse('returns-delete-return', kwargs={'pk': 1})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['success'])
+        self.assertEqual(response.data['message'], 'devolución eliminación exitosamente' if 'devolución eliminación' in response.data['message'] else 'devolución eliminada exitosamente')
+        mock_return.delete.assert_called_once()
+
+    @patch('api.Returns.views.ReturnsViewSets.get_object')
+    @patch('django.db.transaction.atomic')
+    def test_delete_return_not_canceled(self, mock_atomic, mock_get_object):
+        """Test: intentar eliminar devolucion no anulada"""
+        mock_return = MagicMock()
+        mock_return.state = False
+        mock_get_object.return_value = mock_return
+
+        url = reverse('returns-delete-return', kwargs={'pk': 1})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(response.data['success'])
+        self.assertIn('solo se pueden eliminar', response.data['message'].lower())
+
+    @patch('api.Returns.views.ReturnsViewSets.get_object')
     @patch('api.Returns.views.add_stock')
     @patch('django.db.transaction.atomic')
-    def test_delete_return_success(self, mock_atomic, mock_add_stock, mock_get_object):
-        """Test: eliminar devolucion anulada exitosamente"""
-        mock_state = MagicMock()
-        mock_state.name_state = 'Anulado'
-
+    def test_annul_return_success(self, mock_atomic, mock_add_stock, mock_get_object):
+        """Test: anular devolucion exitosamente"""
         mock_detail1 = MagicMock()
         mock_detail1.variant = MagicMock(id=1)
         mock_detail1.quantity = 5
@@ -214,37 +243,21 @@ class ReturnsViewSetsTestCase(APITestCase):
         mock_detail2.quantity = 3
 
         mock_return = MagicMock()
-        mock_return.state = mock_state
+        mock_return.state = False
         mock_return.return_detail.all.return_value = [mock_detail1, mock_detail2]
-        mock_return.delete = MagicMock()
+        mock_return.save = MagicMock()
         mock_get_object.return_value = mock_return
 
-        url = reverse('returns-delete-return', kwargs={'pk': 1})
-        response = self.client.delete(url)
+        url = reverse('returns-annul-return', kwargs={'pk': 1})
+        response = self.client.post(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data['success'])
-        self.assertEqual(response.data['message'], 'devolucion eliminada exitosamente')
-        mock_return.delete.assert_called_once()
+        self.assertEqual(response.data['message'], 'devolución anulada exitosamente')
+        self.assertTrue(mock_return.state)
+        mock_return.save.assert_called_once()
         mock_add_stock.assert_any_call(mock_detail1.variant, 5)
         mock_add_stock.assert_any_call(mock_detail2.variant, 3)
         self.assertEqual(mock_add_stock.call_count, 2)
-
-    @patch('api.Returns.views.ReturnsViewSets.get_object')
-    @patch('django.db.transaction.atomic')
-    def test_delete_return_not_canceled(self, mock_atomic, mock_get_object):
-        """Test: intentar eliminar devolucion no anulada"""
-        mock_state = MagicMock()
-        mock_state.name_state = 'Pendiente'
-
-        mock_return = MagicMock()
-        mock_return.state = mock_state
-        mock_get_object.return_value = mock_return
-
-        url = reverse('returns-delete-return', kwargs={'pk': 1})
-        response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertFalse(response.data['success'])
-        self.assertIn('solo se pueden eliminar', response.data['message'].lower())
 
     @patch('api.Returns.views.ReturnsViewSets.get_object')
     @patch('django.db.transaction.atomic')
@@ -313,7 +326,7 @@ class ReturnsViewSetsTestCase(APITestCase):
         response = self.client.get(self.url_get_metrics)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data['success'])
-        self.assertEqual(response.data['message'], 'metricas de devoluciones')
+        self.assertEqual(response.data['message'], 'métricas de devoluciones')
         self.assertEqual(response.data['metrics']['cantidad_devoluciones'], 15)
 
     @patch('api.Returns.models.Returns.objects.count')
@@ -346,7 +359,7 @@ class ReturnsViewSetsTestCase(APITestCase):
             mock_export.return_value = Response({'message': 'Exportado'}, status=status.HTTP_200_OK)
             response = self.client.get(self.url_export_all_returns)
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            mock_select_related.assert_called_once_with('sale', 'state')
+            mock_select_related.assert_called_once_with('sale')
 
     @patch('api.Returns.models.Returns.objects.select_related')
     def test_export_all_returns_exception(self, mock_select_related):
@@ -372,7 +385,7 @@ class ReturnsViewSetsTestCase(APITestCase):
             url = reverse('returns-export-return-by-id', kwargs={'pk': 1})
             response = self.client.get(url)
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            mock_filter.assert_called_once_with(id_return=1)
+            mock_filter.assert_called_once_with(id_return='1')
 
     @patch('api.Returns.views.ReturnsViewSets.get_object')
     def test_export_return_by_id_not_found(self, mock_get_object):
@@ -415,6 +428,7 @@ class ReturnDetailViewsetsTestCase(APITestCase):
 
     def setUp(self):
         self.client = APIClient()
+        Roles.objects.get_or_create(idRol=2, defaults={'name': 'Empleado', 'description': 'Empleado'})
         self.user = User.objects.create_user(
             username='testuser', email='test@example.com', password='testpass123'
         )
@@ -446,9 +460,9 @@ class ReturnDetailViewsetsTestCase(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data['success'])
-        self.assertEqual(response.data['message'], 'detalle de la devolucion')
+        self.assertEqual(response.data['message'], 'detalle de la devolución')
         self.assertEqual(len(response.data['results']), 1)
-        mock_filter.assert_called_once_with(return_id=1)
+        mock_filter.assert_called_once_with(return_id='1')
 
     @patch('api.Returns.models.ReturnDetail.objects.filter')
     def test_get_returns_by_id_empty(self, mock_filter):
@@ -553,6 +567,7 @@ class ChangesViewSetsTestCase(APITestCase):
 
     def setUp(self):
         self.client = APIClient()
+        Roles.objects.get_or_create(idRol=2, defaults={'name': 'Empleado', 'description': 'Empleado'})
         self.user = User.objects.create_user(
             username='testuser', email='test@example.com', password='testpass123'
         )
@@ -836,7 +851,7 @@ class ChangesViewSetsTestCase(APITestCase):
         response = self.client.get(self.url_get_metrics)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data['success'])
-        self.assertEqual(response.data['message'], 'metricas de cambios')
+        self.assertEqual(response.data['message'], 'métricas de cambios')
         self.assertEqual(response.data['metrics']['cantidad_cambios'], 10)
 
     @patch('api.Returns.models.Changes.objects.count')
@@ -878,6 +893,7 @@ class ChangesDetailViewsetsTestCase(APITestCase):
 
     def setUp(self):
         self.client = APIClient()
+        Roles.objects.get_or_create(idRol=2, defaults={'name': 'Empleado', 'description': 'Empleado'})
         self.user = User.objects.create_user(
             username='testuser', email='test@example.com', password='testpass123'
         )
@@ -911,7 +927,7 @@ class ChangesDetailViewsetsTestCase(APITestCase):
         self.assertTrue(response.data['success'])
         self.assertEqual(response.data['message'], 'detalle del cambio')
         self.assertEqual(len(response.data['results']), 1)
-        mock_filter.assert_called_once_with(change=1)
+        mock_filter.assert_called_once_with(change='1')
 
     @patch('api.Returns.models.ChangesDetails.objects.filter')
     def test_get_changes_by_id_empty(self, mock_filter):

@@ -75,19 +75,41 @@ class ReturnsViewSets(viewsets.GenericViewSet):
     def delete_return(self, request, pk=None):
         try:
             return_obj = self.get_object()
-            current_state = return_obj.state.name_state
 
-            if current_state != 'Anulado':
-                return Response({'message': f'Solo se pueden eliminar devoluciones anuladas', 'success': False}, status=status.HTTP_400_BAD_REQUEST)
+            if not return_obj.state:
+                return Response({'message': 'Solo se pueden eliminar devoluciones anuladas', 'success': False}, status=status.HTTP_400_BAD_REQUEST)
+
+            return_obj.delete()
+            logger.info(f'devolución eliminada exitosamente')
+            return Response({'message': 'devolución eliminada exitosamente', 'success': True}, status=status.HTTP_200_OK)
+        except Returns.DoesNotExist as de:
+            logger.warning(f'esta devolución no esta disponible: {de}')
+            return Response({'message': 'esta devolución no existe', 'success': False}, status=status.HTTP_404_NOT_FOUND)
+        except MultipleObjectsReturned as mo:
+            logger.critical(f'multiples objetos devueltos por el servidor: {mo}')
+            return Response({'message': 'multiples objetos retornados', 'success': False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as ex:
+            logger.critical(f'error interno del servidor: {ex}')
+            return Response({'message': str(ex), 'success': False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=True, methods=['PATCH', 'POST'])
+    @transaction.atomic
+    def annul_return(self, request, pk=None):
+        try:
+            return_obj = self.get_object()
+            if return_obj.state:
+                return Response({'message': 'La devolución ya está anulada', 'success': False}, status=status.HTTP_400_BAD_REQUEST)
+
+            return_obj.state = True
+            return_obj.save()
 
             # Revertir stock para todos los detalles de la devolución
             for detail in return_obj.return_detail.all():
                 add_stock(detail.variant, detail.quantity)
                 logger.info(f'stock revertido para variante: {detail.variant.id}, cantidad: {detail.quantity}')
 
-            return_obj.delete()
-            logger.info(f'devolución eliminada exitosamente')
-            return Response({'message': 'devolución eliminada exitosamente', 'success': True}, status=status.HTTP_200_OK)
+            logger.info(f'devolución anulada exitosamente')
+            return Response({'message': 'devolución anulada exitosamente', 'success': True}, status=status.HTTP_200_OK)
         except Returns.DoesNotExist as de:
             logger.warning(f'esta devolución no esta disponible: {de}')
             return Response({'message': 'esta devolución no existe', 'success': False}, status=status.HTTP_404_NOT_FOUND)
@@ -127,7 +149,7 @@ class ReturnsViewSets(viewsets.GenericViewSet):
     @action(detail=False, methods=['GET'])
     def export_all_returns(self, request):
         try:
-            queryset = Returns.objects.select_related('sale', 'state').prefetch_related('return_detail__variant__product')
+            queryset = Returns.objects.select_related('sale').prefetch_related('return_detail__variant__product')
             file = Export_returns_list(queryset)
             return file
         except Exception as ex:
@@ -138,7 +160,7 @@ class ReturnsViewSets(viewsets.GenericViewSet):
     def export_return_by_id(self, request, pk=None):
         try:
             return_obj = self.get_object()
-            queryset = Returns.objects.filter(id_return=pk).select_related('sale', 'state').prefetch_related('return_detail__variant__product')
+            queryset = Returns.objects.filter(id_return=pk).select_related('sale').prefetch_related('return_detail__variant__product')
             file = Export_returns_list(queryset)
             return file
         except Returns.DoesNotExist as de:

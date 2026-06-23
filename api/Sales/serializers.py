@@ -23,7 +23,7 @@ class SalesDetailsSerializer(serializers.ModelSerializer):
 
 class SalesSerializer(serializers.ModelSerializer):
     details = SalesDetailsSerializer(many=True, source='sale_detail')
-    client_name = serializers.CharField(source='client.name_client', read_only=True)
+    client_name = serializers.CharField(source='client.name', read_only=True)
     state_name = serializers.CharField(source='state.name_state', read_only=True)
     number_pedido = serializers.CharField(source='order.number_order', read_only=True)
     
