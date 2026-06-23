@@ -106,7 +106,7 @@ class ReturnsViewSets(viewsets.GenericViewSet):
             # Revertir stock para todos los detalles de la devolución
             for detail in return_obj.return_detail.all():
                 add_stock(detail.variant, detail.quantity)
-                logger.info(f'stock revertido para variante: {detail.variant.id}, cantidad: {detail.quantity}')
+                logger.info(f'stock revertido para variante: {detail.variant.id_variant}, cantidad: {detail.quantity}')
 
             logger.info(f'devolución anulada exitosamente')
             return Response({'message': 'devolución anulada exitosamente', 'success': True}, status=status.HTTP_200_OK)
