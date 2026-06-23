@@ -68,13 +68,9 @@ class SalesViewSets(viewsets.GenericViewSet):
     def delete_sale(self, request, pk=None):
         try:
             sale = self.get_object()
-            current_state = sale.state.name_state
 
-            if current_state != 'Anulado':
-                return Response({'message': f'Solo se pueden eliminar compras anuladas', 'success': False}, status=status.HTTP_400_BAD_REQUEST)
-            
-            for detail in sale.sales_details.all():
-                add_stock(detail.variant, detail.quantity)
+            if not sale.state:
+                return Response({'message': 'Solo se pueden eliminar ventas anuladas', 'success': False}, status=status.HTTP_400_BAD_REQUEST)
 
             sale.delete()
             return Response({'message':'venta eliminada exitosamente','success':True}, status=status.HTTP_200_OK)
@@ -116,34 +112,41 @@ class SalesViewSets(viewsets.GenericViewSet):
             logger.critical(f'error interno del servidor: {ex}')
             return Response({'message': str(ex),'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-    @action(detail=True,methods=['PATCH'])
-    def patch_state(self, request, pk=None):
+    @action(detail=True, methods=['PATCH', 'POST'])
+    @transaction.atomic
+    def annul_sale(self, request, pk=None):
         try:
             sale = self.get_object()
+            if sale.state:
+                return Response({'message': 'La venta ya está anulada', 'success': False}, status=status.HTTP_400_BAD_REQUEST)
 
-            current_state = sale.state.name_state
-            if current_state in ['entregada','anulada','cancelada']:
-                return Response({'message':f'no se puede cambiar la venta con estado: {current_state}','success':False}, status=status.HTTP_400_BAD_REQUEST)
-            
-            state_id = request.data.get('state')
-            if not state_id:
-                return Response({'message':'necesitas enviar un estado','success':False}, status=status.HTTP_400_BAD_REQUEST)
-            
-            sale.state_id_state = state_id
+            sale.state = True
+            void_reason = request.data.get('void_reason') or request.data.get('reason')
+            if void_reason:
+                sale.void_reason = void_reason
             sale.save()
-            serializer = self.get_serializer(sale)
-            return Response({'message':'estado actualizado exitosamente','object':serializer.data,'success':True}, status=status.HTTP_200_OK)
+
+            # Revertir stock para todos los detalles de la venta
+            for detail in sale.sale_detail.all():
+                add_stock(detail.variant, detail.quantity)
+                logger.info(f'stock revertido para variante: {detail.variant.id_variant}, cantidad: {detail.quantity}')
+
+            logger.info(f'venta anulada exitosamente')
+            return Response({'message': 'venta anulada exitosamente', 'success': True}, status=status.HTTP_200_OK)
+        except Sales.DoesNotExist as de:
+            logger.warning(f'esta venta no esta disponible: {de}')
+            return Response({'message': 'esta venta no existe', 'success': False}, status=status.HTTP_404_NOT_FOUND)
         except MultipleObjectsReturned as mo:
-            logger.critical(f'multiples objetos retornados por el servidor: {mo}')
-            return Response({'message':'multiples objetos retornados','success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.critical(f'multiples objetos devueltos por el servidor: {mo}')
+            return Response({'message': 'multiples objetos retornados', 'success': False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as ex:
-            logger.critical(f'error interno de servidor: {ex}')
-            return  Response({'message':str(ex),'success':False},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.critical(f'error interno del servidor: {ex}')
+            return Response({'message': str(ex), 'success': False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     @action(detail=False,methods=['GET'])
     def export_sales(self, request):
         try:
-            queryset = Sales.objects.select_related('client','state').prefetch_related('sale_detail__variant__product')
+            queryset = Sales.objects.select_related('client').prefetch_related('sale_detail__variant__product')
             list = Export_sales_list(queryset)
 
             return list

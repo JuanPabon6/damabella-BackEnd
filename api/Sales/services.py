@@ -23,7 +23,7 @@ def Export_sales_list(queryset):
 
     for sale in queryset:
         client_name = sale.client.name if sale.client else 'Sin Cliente'
-        state_name = sale.state.name_state if sale.state else 'Sin Estado'
+        state_name = "Anulado" if sale.state else "Activo"
         payment_name = sale.payment_method.name if sale.payment_method else 'Sin Método'
         date_sale_str = sale.date_sale.strftime('%Y-%m-%d %H:%M:%S') if sale.date_sale else ''
 

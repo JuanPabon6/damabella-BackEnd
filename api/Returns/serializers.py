@@ -55,9 +55,9 @@ class ReturnsSerializer(serializers.ModelSerializer):
     def validate(self, data):
         """Validar que la venta exista y esté en estado válido para devolución"""
         sale = data.get('sale')
-        if sale and sale.state.name_state in ['anulada', 'devuelta']:
+        if sale and sale.state:
             raise serializers.ValidationError(
-                detail=f'No se puede hacer devolución de una venta {sale.state.name_state}',
+                detail='No se puede hacer devolución de una venta anulada',
                 code='invalid_sale_state'
             )
         return data
@@ -170,9 +170,9 @@ class ChangesSerializer(serializers.ModelSerializer):
     def validate(self, data):
         """Validar que la venta exista y esté en estado válido para cambio"""
         sale = data.get('sale')
-        if sale and sale.state.name_state in ['anulada', 'devuelta']:
+        if sale and sale.state:
             raise serializers.ValidationError(
-                detail=f'No se puede hacer cambio de una venta {sale.state.name_state}',
+                detail='No se puede hacer cambio de una venta anulada',
                 code='invalid_sale_state'
             )
         return data

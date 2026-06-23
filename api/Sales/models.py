@@ -20,7 +20,7 @@ class Sales(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True, related_name='sales', db_column='user_id')
     order = models.ForeignKey(Orders, on_delete=models.CASCADE, related_name='order_sale', default=None, null=True, blank=True)
     date_sale = models.DateTimeField(auto_now_add=True)
-    state = models.ForeignKey(States, on_delete=models.PROTECT, related_name='sales')
+    state = models.BooleanField(default=False)
     payment_method = models.ForeignKey(PaymentMethods, on_delete=models.PROTECT, related_name='sales')
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)
     iva = models.DecimalField(max_digits=10, decimal_places=2)

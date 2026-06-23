@@ -24,7 +24,7 @@ class SalesDetailsSerializer(serializers.ModelSerializer):
 class SalesSerializer(serializers.ModelSerializer):
     details = SalesDetailsSerializer(many=True, source='sale_detail')
     client_name = serializers.CharField(source='client.name', read_only=True)
-    state_name = serializers.CharField(source='state.name_state', read_only=True)
+    state_name = serializers.SerializerMethodField()
     number_pedido = serializers.CharField(source='order.number_order', read_only=True)
     
     class Meta:
@@ -37,8 +37,12 @@ class SalesSerializer(serializers.ModelSerializer):
             'iva': {'read_only': True},
             'total': {'read_only': True},
             'output_executing': {'read_only': True},
-            'return_executing': {'read_only': True}
+            'return_executing': {'read_only': True},
+            'state': {'read_only': True}
         }
+
+    def get_state_name(self, obj):
+        return "Anulado" if obj.state else "Activo"
 
     def validate_details(self, details):
         if not details:
@@ -117,11 +121,9 @@ class SalesSerializer(serializers.ModelSerializer):
         
     @transaction.atomic
     def update(self, instance, validated_data):
-        ESTADOS_BLOQUEADOS = ['pagada', 'entregada', 'anulada', 'devuelta']
-        
-        if instance.state.name_state in ESTADOS_BLOQUEADOS:
+        if instance.state:
             raise serializers.ValidationError(
-                detail=f'No se puede modificar una venta en estado {instance.state.name_state}',
+                detail='No se puede modificar una venta anulada',
                 code='sale_locked'
             )
         

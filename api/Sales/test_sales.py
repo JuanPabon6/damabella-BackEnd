@@ -14,6 +14,7 @@ from api.Sales.serializers import SalesSerializer, SalesDetailsSerializer
 from api.Sales.views import SalesViewSets, SalesDetailViewsets
 from api.Inventory.services import add_stock
 from .services import Export_sales_list
+from api.Roles.models import Roles
 
 
 User = get_user_model()
@@ -28,6 +29,7 @@ class SalesViewSetsTestCase(APITestCase):
 
     def setUp(self):
         self.client = APIClient()
+        Roles.objects.get_or_create(idRol=2, defaults={'name': 'Empleado', 'description': 'Empleado'})
         self.user = User.objects.create_user(
             username='testuser', email='test@example.com', password='testpass123'
         )
@@ -192,23 +194,11 @@ class SalesViewSetsTestCase(APITestCase):
     # ==================== TESTS PARA delete_sale ====================
 
     @patch('api.Sales.views.SalesViewSets.get_object')
-    @patch('api.Sales.views.add_stock')
     @patch('django.db.transaction.atomic')
-    def test_delete_sale_success(self, mock_atomic, mock_add_stock, mock_get_object):
+    def test_delete_sale_success(self, mock_atomic, mock_get_object):
         """Test: eliminar venta anulada exitosamente"""
-        mock_state = MagicMock()
-        mock_state.name_state = 'Anulado'
-
-        mock_detail1 = MagicMock()
-        mock_detail1.variant = MagicMock(id=1)
-        mock_detail1.quantity = 5
-        mock_detail2 = MagicMock()
-        mock_detail2.variant = MagicMock(id=2)
-        mock_detail2.quantity = 3
-
         mock_sale = MagicMock()
-        mock_sale.state = mock_state
-        mock_sale.sales_details.all.return_value = [mock_detail1, mock_detail2]
+        mock_sale.state = True
         mock_sale.delete = MagicMock()
         mock_get_object.return_value = mock_sale
 
@@ -218,19 +208,13 @@ class SalesViewSetsTestCase(APITestCase):
         self.assertTrue(response.data['success'])
         self.assertEqual(response.data['message'], 'venta eliminada exitosamente')
         mock_sale.delete.assert_called_once()
-        mock_add_stock.assert_any_call(mock_detail1.variant, 5)
-        mock_add_stock.assert_any_call(mock_detail2.variant, 3)
-        self.assertEqual(mock_add_stock.call_count, 2)
 
     @patch('api.Sales.views.SalesViewSets.get_object')
     @patch('django.db.transaction.atomic')
     def test_delete_sale_not_voided(self, mock_atomic, mock_get_object):
         """Test: intentar eliminar venta no anulada"""
-        mock_state = MagicMock()
-        mock_state.name_state = 'Pendiente'
-
         mock_sale = MagicMock()
-        mock_sale.state = mock_state
+        mock_sale.state = False
         mock_get_object.return_value = mock_sale
 
         url = reverse('sales-delete-sale', kwargs={'pk': 1})
@@ -272,16 +256,11 @@ class SalesViewSetsTestCase(APITestCase):
         self.assertFalse(response.data['success'])
 
     @patch('api.Sales.views.SalesViewSets.get_object')
-    @patch('api.Sales.views.add_stock')
     @patch('django.db.transaction.atomic')
-    def test_delete_sale_integrity_error(self, mock_atomic, mock_add_stock, mock_get_object):
+    def test_delete_sale_integrity_error(self, mock_atomic, mock_get_object):
         """Test: eliminar venta con IntegrityError"""
-        mock_state = MagicMock()
-        mock_state.name_state = 'Anulado'
-
         mock_sale = MagicMock()
-        mock_sale.state = mock_state
-        mock_sale.sales_details.all.return_value = []
+        mock_sale.state = True
         mock_sale.delete.side_effect = IntegrityError("Foreign key constraint")
         mock_get_object.return_value = mock_sale
 
@@ -396,117 +375,76 @@ class SalesViewSetsTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertFalse(response.data['success'])
 
-    # ==================== TESTS PARA patch_state ====================
+    # ==================== TESTS PARA annul_sale ====================
 
     @patch('api.Sales.views.SalesViewSets.get_object')
-    @patch('api.Sales.views.SalesViewSets.get_serializer')
-    def test_patch_state_success(self, mock_get_serializer, mock_get_object):
-        """Test: actualizar estado de venta exitosamente"""
-        mock_state = MagicMock()
-        mock_state.name_state = 'Pendiente'
+    @patch('api.Sales.views.add_stock')
+    @patch('django.db.transaction.atomic')
+    def test_annul_sale_success(self, mock_atomic, mock_add_stock, mock_get_object):
+        """Test: anular venta exitosamente"""
+        mock_detail1 = MagicMock()
+        mock_detail1.variant = MagicMock(id=1)
+        mock_detail1.quantity = 5
+        mock_detail2 = MagicMock()
+        mock_detail2.variant = MagicMock(id=2)
+        mock_detail2.quantity = 3
 
         mock_sale = MagicMock()
-        mock_sale.state = mock_state
-        mock_sale.state_id_state = 1
+        mock_sale.state = False
+        mock_sale.sale_detail.all.return_value = [mock_detail1, mock_detail2]
         mock_sale.save = MagicMock()
         mock_get_object.return_value = mock_sale
 
-        mock_serializer = MagicMock()
-        mock_serializer.data = {'id': 1, 'state_id_state': 2, 'state': {'id_state': 2, 'name': 'Enviado'}}
-        mock_get_serializer.return_value = mock_serializer
-
-        url = reverse('sales-patch-state', kwargs={'pk': 1})
-        response = self.client.patch(url, {'state': 2}, format='json')
+        url = reverse('sales-annul-sale', kwargs={'pk': 1})
+        response = self.client.post(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data['success'])
-        self.assertEqual(response.data['message'], 'estado actualizado exitosamente')
-        self.assertIn('object', response.data)
-        self.assertEqual(mock_sale.state_id_state, 2)
+        self.assertEqual(response.data['message'], 'venta anulada exitosamente')
+        self.assertTrue(mock_sale.state)
         mock_sale.save.assert_called_once()
+        mock_add_stock.assert_any_call(mock_detail1.variant, 5)
+        mock_add_stock.assert_any_call(mock_detail2.variant, 3)
+        self.assertEqual(mock_add_stock.call_count, 2)
 
     @patch('api.Sales.views.SalesViewSets.get_object')
-    def test_patch_state_blocked_state(self, mock_get_object):
-        """Test: intentar cambiar estado de venta bloqueada (entregada)"""
-        mock_state = MagicMock()
-        mock_state.name_state = 'entregada'
-
+    def test_annul_sale_already_annulled(self, mock_get_object):
+        """Test: intentar anular una venta ya anulada"""
         mock_sale = MagicMock()
-        mock_sale.state = mock_state
+        mock_sale.state = True
         mock_get_object.return_value = mock_sale
 
-        url = reverse('sales-patch-state', kwargs={'pk': 1})
-        response = self.client.patch(url, {'state': 2}, format='json')
+        url = reverse('sales-annul-sale', kwargs={'pk': 1})
+        response = self.client.post(url)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(response.data['success'])
-        self.assertIn('no se puede cambiar', response.data['message'].lower())
-        self.assertIn('entregada', response.data['message'].lower())
+        self.assertIn('ya está anulada', response.data['message'].lower())
 
     @patch('api.Sales.views.SalesViewSets.get_object')
-    def test_patch_state_anulada(self, mock_get_object):
-        """Test: intentar cambiar estado de venta anulada"""
-        mock_state = MagicMock()
-        mock_state.name_state = 'anulada'
-
-        mock_sale = MagicMock()
-        mock_sale.state = mock_state
-        mock_get_object.return_value = mock_sale
-
-        url = reverse('sales-patch-state', kwargs={'pk': 1})
-        response = self.client.patch(url, {'state': 2}, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    def test_annul_sale_not_found(self, mock_get_object):
+        """Test: anular venta inexistente"""
+        mock_get_object.side_effect = Sales.DoesNotExist("No existe")
+        url = reverse('sales-annul-sale', kwargs={'pk': 999})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertFalse(response.data['success'])
-        self.assertIn('no se puede cambiar', response.data['message'].lower())
-        self.assertIn('anulada', response.data['message'].lower())
+        self.assertIn('no existe', response.data['message'].lower())
 
     @patch('api.Sales.views.SalesViewSets.get_object')
-    def test_patch_state_cancelada(self, mock_get_object):
-        """Test: intentar cambiar estado de venta cancelada"""
-        mock_state = MagicMock()
-        mock_state.name_state = 'cancelada'
-
-        mock_sale = MagicMock()
-        mock_sale.state = mock_state
-        mock_get_object.return_value = mock_sale
-
-        url = reverse('sales-patch-state', kwargs={'pk': 1})
-        response = self.client.patch(url, {'state': 2}, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertFalse(response.data['success'])
-        self.assertIn('no se puede cambiar', response.data['message'].lower())
-        self.assertIn('cancelada', response.data['message'].lower())
-
-    @patch('api.Sales.views.SalesViewSets.get_object')
-    def test_patch_state_missing_state(self, mock_get_object):
-        """Test: patch_state sin enviar estado"""
-        mock_state = MagicMock()
-        mock_state.name_state = 'Pendiente'
-
-        mock_sale = MagicMock()
-        mock_sale.state = mock_state
-        mock_get_object.return_value = mock_sale
-
-        url = reverse('sales-patch-state', kwargs={'pk': 1})
-        response = self.client.patch(url, {}, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertFalse(response.data['success'])
-        self.assertIn('necesitas enviar', response.data['message'].lower())
-
-    @patch('api.Sales.views.SalesViewSets.get_object')
-    def test_patch_state_multiple_objects(self, mock_get_object):
-        """Test: manejo de MultipleObjectsReturned en patch_state"""
+    def test_annul_sale_multiple_objects(self, mock_get_object):
+        """Test: manejo de MultipleObjectsReturned en annul_sale"""
         mock_get_object.side_effect = MultipleObjectsReturned("Multiples objetos")
-        url = reverse('sales-patch-state', kwargs={'pk': 1})
-        response = self.client.patch(url, {'state': 2}, format='json')
+        url = reverse('sales-annul-sale', kwargs={'pk': 1})
+        response = self.client.post(url)
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertFalse(response.data['success'])
         self.assertIn('multiples objetos', response.data['message'].lower())
 
     @patch('api.Sales.views.SalesViewSets.get_object')
-    def test_patch_state_exception(self, mock_get_object):
-        """Test: excepcion generica en patch_state"""
+    def test_annul_sale_exception(self, mock_get_object):
+        """Test: excepcion generica en annul_sale"""
         mock_get_object.side_effect = Exception('Server error')
-        url = reverse('sales-patch-state', kwargs={'pk': 1})
-        response = self.client.patch(url, {'state': 2}, format='json')
+        url = reverse('sales-annul-sale', kwargs={'pk': 1})
+        response = self.client.post(url)
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertFalse(response.data['success'])
 
@@ -522,7 +460,7 @@ class SalesViewSetsTestCase(APITestCase):
             mock_export.return_value = Response({'message': 'Exportado'}, status=status.HTTP_200_OK)
             response = self.client.get(self.url_export_sales)
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            mock_select_related.assert_called_once_with('client', 'state')
+            mock_select_related.assert_called_once_with('client')
 
     @patch('api.Sales.models.Sales.objects.select_related')
     def test_export_sales_exception(self, mock_select_related):
@@ -570,6 +508,7 @@ class SalesDetailViewsetsTestCase(APITestCase):
 
     def setUp(self):
         self.client = APIClient()
+        Roles.objects.get_or_create(idRol=2, defaults={'name': 'Empleado', 'description': 'Empleado'})
         self.user = User.objects.create_user(
             username='testuser', email='test@example.com', password='testpass123'
         )
