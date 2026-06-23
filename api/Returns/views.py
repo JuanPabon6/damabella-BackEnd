@@ -62,7 +62,7 @@ class ReturnsViewSets(viewsets.GenericViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             logger.info(f'devolución creada exitosamente')
-            return Response({'message': 'devolución creada exitosamente', 'success': True}, status=status.HTTP_201_CREATED)
+            return Response({'message': 'devolución creada exitosamente', 'object': serializer.data, 'success': True}, status=status.HTTP_201_CREATED)
         except IntegrityError as ie:
             logger.critical(f'error de integridad en base de datos: {ie}')
             return Response({'message': 'Error de integridad en los datos', 'success': False}, status=status.HTTP_400_BAD_REQUEST)
@@ -249,7 +249,7 @@ class ChangesViewSets(viewsets.GenericViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             logger.info(f'cambio creado exitosamente')
-            return Response({'message': 'cambio creado exitosamente', 'success': True}, status=status.HTTP_201_CREATED)
+            return Response({'message': 'cambio creado exitosamente', 'object': serializer.data, 'success': True}, status=status.HTTP_201_CREATED)
         except IntegrityError as ie:
             logger.critical(f'error de integridad en base de datos: {ie}')
             return Response({'message': 'Error de integridad en los datos', 'success': False}, status=status.HTTP_400_BAD_REQUEST)
