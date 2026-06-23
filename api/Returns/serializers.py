@@ -37,7 +37,8 @@ class ReturnsSerializer(serializers.ModelSerializer):
             'return_date': {'read_only': True},
             'total': {'read_only': True},
             'balance_in_favor': {'read_only': True},
-            'difference_to_pay': {'read_only': True}
+            'difference_to_pay': {'read_only': True},
+            'state': {'read_only': True}
         }
 
     def get_state_name(self, obj):
