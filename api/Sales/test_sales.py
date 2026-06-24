@@ -544,7 +544,7 @@ class SalesDetailViewsetsTestCase(APITestCase):
         self.assertTrue(response.data['success'])
         self.assertEqual(response.data['message'], 'detalle de la venta')
         self.assertEqual(len(response.data['results']), 1)
-        mock_filter.assert_called_once_with(sale=1)
+        mock_filter.assert_called_once_with(sale='1')
 
     @patch('api.Sales.models.SalesDetail.objects.filter')
     def test_get_sales_by_id_empty(self, mock_filter):

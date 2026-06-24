@@ -5,7 +5,7 @@ from .views import SalesDetailViewsets,SalesViewSets
 router = routers.DefaultRouter()
 
 router.register(r'sales', SalesViewSets, basename='sales')
-router.register(r'salesdetails', SalesDetailViewsets, basename='salesdetails')
+router.register(r'salesdetails', SalesDetailViewsets, basename='sales-detail')
 
 urlpatterns = [
     path('', include(router.urls))
