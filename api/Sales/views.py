@@ -112,7 +112,7 @@ class SalesViewSets(viewsets.GenericViewSet):
             logger.critical(f'error interno del servidor: {ex}')
             return Response({'message': str(ex),'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-    @action(detail=True, methods=['PATCH', 'POST'])
+    @action(detail=True, methods=['PATCH', 'POST'], url_path='patch_state')
     @transaction.atomic
     def annul_sale(self, request, pk=None):
         try:
