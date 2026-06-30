@@ -14,6 +14,9 @@ IVA = decimal.Decimal('0.19')
 # ==================== SERIALIZERS PARA DEVOLUCIONES ====================
 
 class ReturnDetailSerializer(serializers.ModelSerializer):
+    variant_name = serializers.CharField(source='variant.product.name', read_only=True)
+    unit_price = serializers.SerializerMethodField()
+
     class Meta:
         model = ReturnDetail
         fields = '__all__'
@@ -23,10 +26,17 @@ class ReturnDetailSerializer(serializers.ModelSerializer):
             'return_id': {'read_only': True}
         }
 
+    def get_unit_price(self, obj):
+        try:
+            return str(obj.subtotal / obj.quantity)
+        except Exception:
+            return "0.00"
+
 
 class ReturnsSerializer(serializers.ModelSerializer):
     details = ReturnDetailSerializer(many=True, source='return_detail')
     sale_number = serializers.CharField(source='sale.number_sale', read_only=True)
+    client_name = serializers.CharField(source='sale.client.name', read_only=True)
     state_name = serializers.SerializerMethodField()
     
     class Meta:
@@ -136,6 +146,10 @@ class ReturnsSerializer(serializers.ModelSerializer):
 # ==================== SERIALIZERS PARA CAMBIOS ====================
 
 class ChangesDetailsSerializer(serializers.ModelSerializer):
+    variant = serializers.IntegerField(source='variant_delivered.id_variant', read_only=True)
+    variant_name = serializers.SerializerMethodField()
+    price_difference = serializers.SerializerMethodField()
+
     class Meta:
         model = ChangesDetails
         fields = '__all__'
@@ -144,10 +158,24 @@ class ChangesDetailsSerializer(serializers.ModelSerializer):
             'change': {'read_only': True}
         }
 
+    def get_variant_name(self, obj):
+        try:
+            return f"{obj.variant_delivered.product.name} (Talla: {obj.variant_delivered.size.name}, Color: {obj.variant_delivered.color.name})"
+        except Exception:
+            return "Producto desconocido"
+
+    def get_price_difference(self, obj):
+        try:
+            diff = obj.variant_delivered.product.price - obj.variant_returned.product.price
+            return str(diff)
+        except Exception:
+            return "0.00"
+
 
 class ChangesSerializer(serializers.ModelSerializer):
     details = ChangesDetailsSerializer(many=True, source='change_detail')
     sale_number = serializers.CharField(source='sale.number_sale', read_only=True)
+    client_name = serializers.CharField(source='sale.client.name', read_only=True)
     state_name = serializers.CharField(source='state.name_state', read_only=True)
     
     class Meta:
