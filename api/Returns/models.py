@@ -47,7 +47,7 @@ class ReturnDetail(models.Model):
 def generar_numero_cambio():
     while True:
         number = 'CAM-'+''.join(random.choices(string.digits, k=8))
-        if not Changes.objects.filter(purchase_number=number).exists():
+        if not Changes.objects.filter(change_number=number).exists():
             return number
         
 class Changes(models.Model):
