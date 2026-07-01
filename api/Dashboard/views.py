@@ -74,14 +74,20 @@ class DashboardViewSets(viewsets.GenericViewSet):
     @action(detail=False, methods=['get'])
     def productos_mas_vendidos(self, request):
         try:
-            top_productos = SalesDetail.objects.values('variant__product__name')\
-                .annotate(total_vendido=Sum('quantity'))\
+            hace_30_dias = timezone.now() - timezone.timedelta(days=30)
+            top_productos = SalesDetail.objects.filter(sale__date_sale__gte=hace_30_dias)\
+                .values('variant__product__name')\
+                .annotate(
+                    total_vendido=Sum('quantity'),
+                    total_ingresos=Sum('subtotal')
+                )\
                 .order_by('-total_vendido')[:5]
             
             resultados = [
                 {
-                    'producto': item['variant__product__name'],
-                    'cantidad': item['total_vendido']
+                    'nombre': item['variant__product__name'],
+                    'cantidad_vendida': item['total_vendido'],
+                    'ingresos': float(item['total_ingresos'] or 0)
                 } for item in top_productos
             ]
             
