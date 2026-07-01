@@ -309,7 +309,7 @@ class ClientsViewSets(viewsets.GenericViewSet):
     # authentication_classes = []
     required_module = 'Clientes'
     filter_backends = [filters.SearchFilter]
-    search_fields = ['id_client','name','type_doc','doc','phone','address','email','state','city']
+    search_fields = ['name', 'doc', 'phone', 'address', 'email', 'city']
 
     def get_serializer_class(self):
         if self.action == 'patch_state':
