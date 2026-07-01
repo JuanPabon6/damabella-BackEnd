@@ -46,12 +46,10 @@ class DashboardViewSets(viewsets.GenericViewSet):
     @action(detail=False, methods=['get'])
     def cantidad_ventas_mes(self, request):
         try:
-            # Obtener fecha actual
-            now = timezone.now()
-            mes_actual = now.month
-            año_actual = now.year
+            # Obtener fecha desde hace 30 días
+            hace_30_dias = timezone.now() - timezone.timedelta(days=30)
             
-            cantidad = Sales.objects.filter(date_sale__month=mes_actual,date_sale__year=año_actual).count()
+            cantidad = Sales.objects.filter(date_sale__gte=hace_30_dias).count()
             
             return Response({'success': True,'results': cantidad}, status=status.HTTP_200_OK)
             
@@ -61,11 +59,10 @@ class DashboardViewSets(viewsets.GenericViewSet):
     @action(detail=False, methods=['get'])
     def dinero_ventas_mes(self, request):
         try:
-            now = timezone.now()
-            mes_actual = now.month
-            año_actual = now.year
+            # Obtener fecha desde hace 30 días
+            hace_30_dias = timezone.now() - timezone.timedelta(days=30)
             
-            resultado = Sales.objects.filter(date_sale__month=mes_actual,date_sale__year=año_actual).aggregate(total_dinero=Sum('total'))
+            resultado = Sales.objects.filter(date_sale__gte=hace_30_dias).aggregate(total_dinero=Sum('total'))
             
             total = resultado['total_dinero'] or 0
             
