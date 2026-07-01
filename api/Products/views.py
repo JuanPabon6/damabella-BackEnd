@@ -357,6 +357,23 @@ class ProductPhotosViewSets(viewsets.GenericViewSet):
         except Exception as ex:
             return Response({'error':str(ex), 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
+    @action(detail=False, methods=['GET'])
+    def get_best_seller(self, request):
+        try:
+            from api.Sales.models import SalesDetail
+            from django.db.models import Sum
+            
+            best_seller_data = SalesDetail.objects.filter(sale__state=False).values('variant__product').annotate(
+                total_qty=Sum('quantity')
+            ).order_by('-total_qty').first()
+            
+            if best_seller_data:
+                product_id = best_seller_data['variant__product']
+                return Response({'success': True, 'product_id': product_id}, status=status.HTTP_200_OK)
+            return Response({'success': True, 'product_id': None}, status=status.HTTP_200_OK)
+        except Exception as ex:
+            return Response({'error': str(ex), 'success': False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
         
 class VariantProductViewSets(viewsets.GenericViewSet):
     queryset = VariantProduct.objects.all()
