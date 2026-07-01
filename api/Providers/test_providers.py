@@ -551,7 +551,7 @@ class ProvidersViewSetsTestCase(APITestCase):
         self.assertEqual(viewset.serializer_class, ProvidersSerializers)
         self.assertEqual(viewset.required_module, 'Proveedores')
         self.assertIn(filters.SearchFilter, viewset.filter_backends)
-        self.assertEqual(viewset.fields_search, ['nit_document','kompany_name','contact_name','phone','address'])
+        self.assertEqual(viewset.search_fields, ['name', 'number_doc', 'contact_name', 'phone', 'address', 'email'])
 
     def test_viewset_authentication_disabled(self):
         """Test: verificar que autenticación está comentada/desactivada"""
@@ -710,8 +710,7 @@ class ProvidersViewSetsTestCase(APITestCase):
             response = self.client.delete(url)
 
             self.assertIn('results', response.data)
-            # Nota: typo en código original 'succes' vs 'success'
-            self.assertIn('succes', response.data)
+            self.assertIn('success', response.data)
 
     # ==================== TESTS DE LOGGING (si aplica) ====================
 

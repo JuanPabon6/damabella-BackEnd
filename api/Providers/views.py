@@ -16,7 +16,7 @@ class ProvidersViewSets(viewsets.GenericViewSet):
     # permission_classes = []
     required_module = 'Proveedores'
     filter_backends = [filters.SearchFilter]
-    fields_search = ['nit_document','kompany_name','contact_name','phone','address']
+    search_fields = ['name', 'number_doc', 'contact_name', 'phone', 'address', 'email']
 
     def get_serializer_class(self):
         if self.action == 'patch_state':
@@ -59,7 +59,7 @@ class ProvidersViewSets(viewsets.GenericViewSet):
         try:
             provider = self.get_object()
             provider.delete()
-            return Response({'results':'eliminado exitosamente','succes':True}, status=status.HTTP_200_OK)
+            return Response({'results':'eliminado exitosamente','success':True}, status=status.HTTP_200_OK)
         except MultipleObjectsReturned:
             return Response({'message':'multiples objetos retornados', 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except IntegrityError:

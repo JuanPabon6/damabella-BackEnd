@@ -339,8 +339,8 @@ class ClientsViewSets(viewsets.GenericViewSet):
             data_client = request.data
             client_serializer = self.get_serializer(data=data_client)
             client_serializer.is_valid(raise_exception=True)
-            client_instance = client_serializer.save(user=request.user)
-            return Response({'message':'creado exitosamente','results':client_instance.data,'success':True}, status=status.HTTP_201_CREATED)
+            client_serializer.save()
+            return Response({'message':'creado exitosamente','results':client_serializer.data,'success':True}, status=status.HTTP_201_CREATED)
         except Exception as ex:
             return Response({'error':str(ex), 'success':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
