@@ -324,11 +324,20 @@ class ProductPhotosViewSets(viewsets.GenericViewSet):
     @action(detail=False,methods=['POST'])
     def create_photos(self, request):
         try:
-            data = request.data
+            data = request.data.copy()
+            if 'variant' in data:
+                val = data['variant']
+                if val == '0' or val == 0 or val == '' or val is None:
+                    data['variant'] = None
+            else:
+                data['variant'] = None
+
             serializer = self.get_serializer(data=data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response({'message':'photo agregada exitosamente', 'object':serializer.data, 'success':False}, status=status.HTTP_201_CREATED)
+            return Response({'message':'photo agregada exitosamente', 'object':serializer.data, 'success':True}, status=status.HTTP_201_CREATED)
+        except ValidationError as ex:
+            return Response({'message':'datos incorrectos enviados', 'errors': ex.detail, 'success':False}, status=status.HTTP_400_BAD_REQUEST)
         except IntegrityError:
             return Response({'message':'error de llaves', 'success':False}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as ex:

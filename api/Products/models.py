@@ -54,7 +54,7 @@ class VariantProduct(models.Model):
 class ProductPhoto(models.Model):
     id =models.AutoField(primary_key=True)
     producto = models.ForeignKey(Products, on_delete=models.CASCADE, related_name='photos')
-    variant = models.ForeignKey(VariantProduct, on_delete=models.CASCADE, related_name='variant_photo', default=0, null=True, blank=True)
+    variant = models.ForeignKey(VariantProduct, on_delete=models.CASCADE, related_name='variant_photo', default=None, null=True, blank=True)
     image = models.ImageField(upload_to='products/photos/')
 
     class Meta:
